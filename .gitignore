@@ -22,3 +22,45 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Build
+bin/
+obj/
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# User-specific
+*.user
+*.userosscache
+*.suo
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ASP.NET
+appsettings.Development.json
+
+# Environment
+.env
+
+# Docker
+docker-compose.override.yml
+
+# Publish
+publish/
+
+# NuGet
+*.nupkg
+packages/
+
+# VS Code (если вдруг)
+.vscode/
+
+# Test results
+TestResults/
