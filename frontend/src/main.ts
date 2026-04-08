@@ -6,6 +6,8 @@ import { MyPreset } from './primevue-styles.ts'
 
 const app = createApp(App)
 
+app.use(router)
+
 app.use(PrimeVue, {
   theme: {
     preset: MyPreset,
@@ -15,6 +17,5 @@ app.use(PrimeVue, {
   }
 })
 
-app.use(router)
 
 app.mount('#app')

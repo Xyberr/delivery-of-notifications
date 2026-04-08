@@ -1,11 +1,20 @@
 <script setup lang="ts">
+import { useUserStore } from '@/stores/auth';
 import { Button, FloatLabel, InputText, Panel } from 'primevue';
 import { ref } from 'vue';
 
 const apiKey = ref('')
+const userStore = useUserStore();
 
 const onLogin = async () => {
   console.log('Login...')
+
+  try {
+    await userStore.loginAsync(0, apiKey.value);
+    console.log('Login successful, redirecting to home page...');
+  } catch (error) {
+    console.error('Login failed:', error);
+  }
 }
 </script>
 
