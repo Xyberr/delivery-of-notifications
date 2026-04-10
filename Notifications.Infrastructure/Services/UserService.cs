@@ -40,13 +40,9 @@ public class UserService
             CreatedAt = DateTime.UtcNow
         };
 
-        Console.WriteLine($"BEFORE SAVE: {user.Email}");
-
         _db.Users.Add(user);
 
-        await _db.SaveChangesAsync(); // 💥 тут падает
-
-        Console.WriteLine($"AFTER SAVE: {user.Email}");
+        await _db.SaveChangesAsync();
 
         return new UserResponse(user.Id, user.Email);
     }
