@@ -1,0 +1,18 @@
+<script setup lang="ts">
+import { RouterView } from 'vue-router';
+
+</script>
+
+<template>
+  <RouterView />
+</template>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+  font-family: "Roboto", sans-serif;
+  padding: 0px;
+  margin: 0px;
+}
+</style>
