@@ -41,6 +41,13 @@ declare module 'vue-router/auto-routes' {
       { unknown: ParamValue<false> },
       | never
     >,
+    '/send': RouteRecordInfo<
+      '/send',
+      '/send',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -63,6 +70,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/[...unknown].vue': {
       routes:
         | '/[...unknown]'
+      views:
+        | never
+    }
+    'src/pages/send.vue': {
+      routes:
+        | '/send'
       views:
         | never
     }
