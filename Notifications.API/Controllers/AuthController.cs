@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Notifications.Contracts.Requests;
-using Notifications.Infrastructure.Services.Auth;
+using Notifications.API.Service.AuthService;
+
 
 namespace Notifications.API.Controllers;
 
@@ -8,18 +8,17 @@ namespace Notifications.API.Controllers;
 [Route("auth")]
 public class AuthController : ControllerBase
 {
-    private readonly AuthService _auth;
+    private readonly IAuthService _authService;
 
-    public AuthController(AuthService auth)
+    public AuthController(IAuthService authService)
     {
-        _auth = auth;
+        _authService = authService;
     }
     
-
-    [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] AuthRequest request)
+    [HttpGet]
+    public async Task<IActionResult> Auth()
     {
-        var token = await _auth.Login(request.Email, request.Password);
-        return Ok(new { token });
+        var token = await _authService.GenerateAndSaveToken();
+        return Ok(token);
     }
 }

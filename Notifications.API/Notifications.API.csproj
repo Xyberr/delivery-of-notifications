@@ -19,11 +19,4 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Notifications.Contracts\Notifications.Contracts.csproj" />
-      <ProjectReference Include="..\Notifications.Core\Notifications.Core.csproj" />
-      <ProjectReference Include="..\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
-      <ProjectReference Include="..\Notifications.Worker\Notifications.Worker.csproj" />
-    </ItemGroup>
-
 </Project>

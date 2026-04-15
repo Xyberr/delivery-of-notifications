@@ -14,12 +14,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Notifications.Contracts\Notifications.Contracts.csproj" />
-      <ProjectReference Include="..\Notifications.Core\Notifications.Core.csproj" />
-      <ProjectReference Include="..\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Folder Include="Consumers\" />
       <Folder Include="Jobs\" />
     </ItemGroup>

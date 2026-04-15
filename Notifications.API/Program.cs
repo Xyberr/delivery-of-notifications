@@ -1,53 +1,36 @@
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Notifications.Infrastructure.Persistence.DbContext;
-using Notifications.Core.Interfaces;
-using Notifications.Infrastructure.Services;
-using Notifications.Infrastructure.Services.Auth;
+using Notifications.API.Persistence;
+using Notifications.API.Service.AuthService;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔹 DB
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        "Host=localhost;Port=5433;Database=notifications;Username=postgres;Password=postgres"));
-
-// 🔹 Services
-builder.Services.AddScoped<INotificationService, NotificationService>();
-
-// 🔹 JWT
-var jwtKey = "SUPER_SECRET_KEY_123456";
-
-builder.Services.AddSingleton(new JwtService(jwtKey));
-builder.Services.AddScoped<AuthService>();
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey))
-        };
-    });
-
 builder.Services.AddAuthorization();
 
-// 🔹 Controllers + Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/auth/login";
+        options.AccessDeniedPath = "/auth/denied";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+    });
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql("Host=localhost;Port=5433;Database=notifications;Username=postgres;Password=postgres"));
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// 🔹 Middleware
 app.UseAuthentication();
 app.UseAuthorization();
 
