@@ -9,5 +9,5 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<Token> Tokens { get; set; }
+    public DbSet<ApiKey> ApiKeys { get; set; }
 }
