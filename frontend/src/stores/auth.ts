@@ -1,7 +1,7 @@
 import { reactive } from 'vue';
 import { createGlobalState, useAsyncState } from '@vueuse/core';
 import { useRouter } from 'vue-router';
-import { postAuthLogin } from '@/heyapi';
+import { postAuthLogin, postAuthLogout } from '@/heyapi';
 
 export const useUserStore = createGlobalState(() => {
   const router = useRouter();
@@ -15,17 +15,19 @@ export const useUserStore = createGlobalState(() => {
       throwError: true,
       onSuccess(res) {
         if (router) {
-          router.push('/')
+          router.push('/private')
         }
       },
     },
   )
 
-  function logOut(reason?: string) {
-    router.push('/auth')
-    if (reason) {
-      console.log(`Выход: ${reason}`)
-      return
+  async function logOut(reason?: string) {
+    try {
+      await postAuthLogout()
+      router.push('/auth')
+    } catch (error) {
+      console.error('Logout failed:', error);
+      router.push('/auth')
     }
   }
 
