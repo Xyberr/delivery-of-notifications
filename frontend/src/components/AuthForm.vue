@@ -20,13 +20,13 @@ const onLogin = () => {
 
     <form class="authPanelContent" @submit.prevent="onLogin">
       <FloatLabel variant="on">
-        <InputText id="on_label" v-model="apiKey" type="text" />
+        <InputText id="on_label" v-model="apiKey" type="text" :disabled="userStore.isLoginLoading" />
         <label for="on_label">API Key</label>
       </FloatLabel>
 
       <p v-if="userStore.loginError" class="error">{{ userStore.loginError }}</p>
 
-      <Button label="Войти" @click="onLogin" />
+      <Button label="Войти" @click="onLogin" :disabled="userStore.isLoginLoading" />
     </form>
   </Panel>
 </template>
