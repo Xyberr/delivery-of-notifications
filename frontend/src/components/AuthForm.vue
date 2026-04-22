@@ -7,12 +7,8 @@ import { ref } from 'vue';
 const apiKey = ref('wai0H4Qe5qLtHYbd7E3UDvObhEEMBrla')
 const userStore = useUserStore();
 
-const onLogin = async () => {
-  try {
-    await userStore.loginAsync(0, apiKey.value);
-  } catch (error) {
-    console.error('Login failed:', error);
-  }
+const onLogin = () => {
+  userStore.loginAsync(apiKey.value)
 }
 </script>
 
@@ -27,6 +23,9 @@ const onLogin = async () => {
         <InputText id="on_label" v-model="apiKey" type="text" />
         <label for="on_label">API Key</label>
       </FloatLabel>
+
+      <p v-if="userStore.loginError" class="error">{{ userStore.loginError }}</p>
+
       <Button label="Войти" @click="onLogin" />
     </form>
   </Panel>
@@ -43,5 +42,9 @@ const onLogin = async () => {
   flex-direction: column;
   width: fit-content;
   gap: 16px;
+}
+
+.error {
+  color: #fc7b86;
 }
 </style>
