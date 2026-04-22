@@ -1,10 +1,11 @@
-﻿using System.Security.Cryptography;
+﻿using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Notifications.API.Entities;
 using Notifications.API.Persistence;
-
-namespace Notifications.API.Service.AuthService;
+using Notifications.API.Service.AuthService;
 
 public class AuthService : IAuthService
 {
@@ -32,32 +33,28 @@ public class AuthService : IAuthService
         return key;
     }
 
-    private string GenerateKey(int length = 32)
+    public async Task<ClaimsPrincipal?> Authenticate(string apiKey)
     {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var entity = await _db.ApiKeys
+            .FirstOrDefaultAsync(x => x.Key == apiKey);
 
-        var result = new StringBuilder(length);
-        var buffer = new byte[length];
+        if (entity == null)
+            return null;
 
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(buffer);
-
-        for (int i = 0; i < length; i++)
+        var claims = new List<Claim>
         {
-            var index = buffer[i] % chars.Length;
-            result.Append(chars[index]);
-        }
+            new Claim(ClaimTypes.NameIdentifier, entity.Id.ToString()),
+            new Claim("owner", entity.Owner)
+        };
 
-        return result.ToString();
+        var identity = new ClaimsIdentity(
+            claims,
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
+        return new ClaimsPrincipal(identity);
     }
 
-    public async Task<ApiKey?> ValidateApiKey(string key)
-    {
-        return await _db.ApiKeys
-            .FirstOrDefaultAsync(x => x.Key == key);
-    }
-
-    private string GenerateToken(int length = 32)
+    private string GenerateKey(int length = 32)
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 

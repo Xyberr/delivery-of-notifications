@@ -9,6 +9,12 @@ using Notifications.API.Service.AuthService;
 
 namespace Notifications.API.Controllers;
 
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Notifications.API.DTO.Requests;
+using Notifications.API.Service.AuthService;
+
 [ApiController]
 [Route("auth")]
 public class AuthController : ControllerBase
@@ -23,25 +29,12 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var apiKey = await _auth.ValidateApiKey(request.ApiKey);
+        var principal = await _auth.Authenticate(request.ApiKey);
 
-        if (apiKey == null)
+        if (principal == null)
             return Unauthorized();
 
-        var claims = new List<Claim>
-        {
-            new Claim("owner", apiKey.Owner)
-        };
-
-        var identity = new ClaimsIdentity(
-            claims,
-            CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var principal = new ClaimsPrincipal(identity);
-
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal);
+        await HttpContext.SignInAsync(principal);
 
         return Ok();
     }
@@ -51,8 +44,8 @@ public class AuthController : ControllerBase
     {
         var key = await _auth.CreateApiKey(owner);
         return Ok(new { key });
-    }    
-    
+    }
+
     [Authorize]
     [HttpGet("secure")]
     public IActionResult Secure()
