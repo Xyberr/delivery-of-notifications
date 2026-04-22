@@ -17,24 +17,23 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/auth/login";
-        options.AccessDeniedPath = "/auth/denied";
 
+        options.Cookie.Name = "notifications_cookie";
         options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.None;
-        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SameSite = SameSiteMode.Strict;
 
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
         
         options.Events.OnRedirectToLogin = context =>
         {
-            context.Response.StatusCode = 401;
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             return Task.CompletedTask;
         };
 
         options.Events.OnRedirectToAccessDenied = context =>
         {
-            context.Response.StatusCode = 403;
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
             return Task.CompletedTask;
         };
     });
@@ -43,15 +42,12 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseSwagger();
+app.UseSwaggerUI();
 
-app.MapGet("/test", () => "TEST WORKS");
-app.MapGet("/", () => "API is running");
+app.MapControllers();
 
 app.Run();

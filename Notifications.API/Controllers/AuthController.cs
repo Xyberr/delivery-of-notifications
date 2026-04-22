@@ -1,48 +1,32 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Notifications.API.DTO.Requests;
 using Notifications.API.Service.AuthService;
-
 
 namespace Notifications.API.Controllers;
 
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Notifications.API.DTO.Requests;
-using Notifications.API.Service.AuthService;
-
 [ApiController]
 [Route("auth")]
-public class AuthController : ControllerBase
+public class AuthController(IAuthService auth) : ControllerBase
 {
-    private readonly IAuthService _auth;
-
-    public AuthController(IAuthService auth)
-    {
-        _auth = auth;
-    }
-
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var principal = await _auth.Authenticate(request.ApiKey);
+        var (principal, data) = await auth.Authenticate(request.ApiKey);
 
-        if (principal == null)
+        if (principal == null || data == null)
             return Unauthorized();
 
         await HttpContext.SignInAsync(principal);
-
-        return Ok();
+        
+        return Ok(data);
     }
 
-    [HttpPost("api-key")]
-    public async Task<IActionResult> CreateApiKey([FromBody] string owner)
+    [HttpPost("api-key")] // ТЕСТ, УДАЛИТЬ
+    public async Task<IActionResult> CreateApiKey([FromBody] string owner, string desc)
     {
-        var key = await _auth.CreateApiKey(owner);
+        var key = await auth.CreateApiKey(owner, desc);
         return Ok(new { key });
     }
 
@@ -55,7 +39,9 @@ public class AuthController : ControllerBase
         return Ok(new
         {
             message = "You are authorized",
-            owner
+            owner,
+            desc = User.FindFirst("description")?.Value,
+            CreatedAt = User.FindFirst("createdAt")?.Value
         });
     }
 

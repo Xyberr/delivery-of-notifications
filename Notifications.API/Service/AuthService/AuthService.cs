@@ -3,20 +3,15 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Notifications.API.DTO.Responses;
 using Notifications.API.Entities;
 using Notifications.API.Persistence;
 using Notifications.API.Service.AuthService;
 
-public class AuthService : IAuthService
+public class AuthService(AppDbContext db) : IAuthService
 {
-    private readonly AppDbContext _db;
 
-    public AuthService(AppDbContext db)
-    {
-        _db = db;
-    }
-
-    public async Task<string> CreateApiKey(string owner)
+    public async Task<string> CreateApiKey(string owner, string desc)
     {
         var key = GenerateKey();
 
@@ -24,34 +19,44 @@ public class AuthService : IAuthService
         {
             Key = key,
             Owner = owner,
-            CreatedAt = DateTime.UtcNow
+            Desc = desc,
+            CreatedAt = DateTime.UtcNow,
         };
 
-        _db.ApiKeys.Add(entity);
-        await _db.SaveChangesAsync();
+        db.ApiKeys.Add(entity);
+        await db.SaveChangesAsync();
 
         return key;
     }
 
-    public async Task<ClaimsPrincipal?> Authenticate(string apiKey)
+    public async Task<(ClaimsPrincipal?, AuthResponse?)> Authenticate(string apiKey)
     {
-        var entity = await _db.ApiKeys
+        var entity = await db.ApiKeys
             .FirstOrDefaultAsync(x => x.Key == apiKey);
 
         if (entity == null)
-            return null;
+            return (null, null);
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, entity.Id.ToString()),
-            new Claim("owner", entity.Owner)
+            new (ClaimTypes.NameIdentifier, entity.Id.ToString()),
+            new ("owner", entity.Owner)
         };
 
         var identity = new ClaimsIdentity(
             claims,
             CookieAuthenticationDefaults.AuthenticationScheme);
 
-        return new ClaimsPrincipal(identity);
+        var principal = new ClaimsPrincipal(identity);
+
+        var data = new AuthResponse
+        {
+            Owner = entity.Owner,
+            Desc = entity.Desc,
+            CreatedAt = entity.CreatedAt
+        };
+
+        return (principal, data);
     }
 
     private string GenerateKey(int length = 32)

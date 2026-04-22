@@ -4,16 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Notifications.API.Entities;
 
-public class ApiKey
+public class ApiKey : BaseEntity
 {
-    [Key]
-    public long Id { get; set; }
-
-    [Required]
+    [Required] 
     public string Key { get; set; } = null!;
 
-    [Required]
+    [Required] 
     public string Owner { get; set; } = null!;
+    
+    public string Desc { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }
 }
