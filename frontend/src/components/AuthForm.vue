@@ -3,15 +3,13 @@ import { useUserStore } from '@/stores/auth';
 import { Button, FloatLabel, InputText, Panel } from 'primevue';
 import { ref } from 'vue';
 
-const apiKey = ref('')
+// todo: remove api key
+const apiKey = ref('wai0H4Qe5qLtHYbd7E3UDvObhEEMBrla')
 const userStore = useUserStore();
 
 const onLogin = async () => {
-  console.log('Login...')
-
   try {
     await userStore.loginAsync(0, apiKey.value);
-    console.log('Login successful, redirecting to home page...');
   } catch (error) {
     console.error('Login failed:', error);
   }
