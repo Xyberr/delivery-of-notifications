@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useUserStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/auth';
 import { Button } from 'primevue';
 
-const userStore = useUserStore();
+const authStore = useAuthStore();
 
 const onLogout = async () => {
   try {
-    await userStore.logOut();
+    await authStore.logOut();
   } catch (error) {
     console.error('Logout failed:', error);
   }

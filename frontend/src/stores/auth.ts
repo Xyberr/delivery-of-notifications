@@ -3,7 +3,7 @@ import { createGlobalState, useAsyncState } from '@vueuse/core';
 import { useRouter } from 'vue-router';
 import { AuthService } from '@/heyapi';
 
-export const useUserStore = createGlobalState(() => {
+export const useAuthStore = createGlobalState(() => {
   const router = useRouter();
 
   const isLoginLoading = ref(false)

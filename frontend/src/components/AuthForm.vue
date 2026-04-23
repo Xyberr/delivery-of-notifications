@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useUserStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/auth';
 import { Button, FloatLabel, InputText, Panel } from 'primevue';
 import { ref } from 'vue';
 import * as z from "zod"; 
 
 // todo: remove api key
 const apiKey = ref('wai0H4Qe5qLtHYbd7E3UDvObhEEMBrla')
-const userStore = useUserStore();
+const authStore = useAuthStore();
 const parseError = ref<null | string>('')
 
 const LoginScheme = z.object({
@@ -20,7 +20,7 @@ const onLogin = () => {
   if (!result.success) {
     parseError.value = result.error.issues[0]?.message as string
   } else {
-    userStore.loginAsync(apiKey.value)
+    authStore.loginAsync(apiKey.value)
   }
 }
 </script>
@@ -33,14 +33,14 @@ const onLogin = () => {
 
     <form class="authPanelContent" @submit.prevent="onLogin">
       <FloatLabel variant="on">
-        <InputText id="on_label" v-model="apiKey" type="text" :disabled="userStore.isLoginLoading" />
+        <InputText id="on_label" v-model="apiKey" type="text" :disabled="authStore.isLoginLoading" />
         <label for="on_label">API Key</label>
       </FloatLabel>
 
-      <p v-if="userStore.loginError" class="error">{{ userStore.loginError }}</p>
+      <p v-if="authStore.loginError" class="error">{{ authStore.loginError }}</p>
       <p v-if="parseError" class="error">{{ parseError }}</p>
 
-      <Button label="Войти" @click="onLogin" :disabled="userStore.isLoginLoading" />
+      <Button label="Войти" @click="onLogin" :disabled="authStore.isLoginLoading" />
     </form>
   </Panel>
 </template>
