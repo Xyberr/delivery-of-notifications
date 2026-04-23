@@ -40,7 +40,9 @@ public class AuthService(AppDbContext db) : IAuthService
         var claims = new List<Claim>
         {
             new (ClaimTypes.NameIdentifier, entity.Id.ToString()),
-            new ("owner", entity.Owner)
+            new ("owner", entity.Owner),
+            new ("description", entity.Desc ?? ""),
+            new ("createdAt", entity.CreatedAt.ToString("O"))
         };
 
         var identity = new ClaimsIdentity(

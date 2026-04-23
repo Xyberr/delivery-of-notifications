@@ -22,7 +22,7 @@ public class AuthController(IAuthService auth) : ControllerBase
         
         return Ok(data);
     }
-
+    
     [HttpPost("api-key")] // ТЕСТ, УДАЛИТЬ
     public async Task<IActionResult> CreateApiKey([FromBody] string owner, string desc)
     {
