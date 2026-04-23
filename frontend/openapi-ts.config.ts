@@ -8,5 +8,25 @@ if (!swaggerUrl) {
 
 export default defineConfig({
   input: swaggerUrl,
-  output: 'src/heyapi',
+  output: {
+    path: 'src/heyapi',
+    postProcess: ['eslint', 'prettier'],
+  },
+  plugins: [
+    {
+      name: '@hey-api/sdk',
+      auth: false,
+      operations: {
+        strategy: 'byTags',
+        containerName: '{{name}}Service',
+      },
+    },
+    {
+      name: '@hey-api/client-fetch',
+    },
+    {
+      name: '@hey-api/typescript',
+      enums: 'typescript',
+    },
+  ]
 });
