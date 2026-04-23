@@ -1,7 +1,7 @@
 import { reactive, ref } from 'vue';
 import { createGlobalState, useAsyncState } from '@vueuse/core';
 import { useRouter } from 'vue-router';
-import { postAuthLogin, postAuthLogout } from '@/heyapi';
+import { AuthService } from '@/heyapi';
 
 export const useUserStore = createGlobalState(() => {
   const router = useRouter();
@@ -14,7 +14,7 @@ export const useUserStore = createGlobalState(() => {
     loginError.value = null
 
     try {
-      await postAuthLogin({
+      await AuthService.postAuthLogin({
         body: { apiKey },
         throwOnError: true,
       })
@@ -29,7 +29,7 @@ export const useUserStore = createGlobalState(() => {
 
   async function logOut(reason?: string) {
     try {
-      await postAuthLogout()
+      await AuthService.postAuthLogout()
       router.push('/auth')
     } catch (error) {
       console.error('Logout failed:', error);

@@ -1,4 +1,4 @@
-import { getAuthSecure } from '@/heyapi'
+import { AuthService } from '@/heyapi'
 import { createRouter, createWebHistory } from 'vue-router'
 import { routes } from 'vue-router/auto-routes'
 
@@ -15,7 +15,7 @@ router.beforeEach(async (to) => {
   const isAuthPage = to.path === '/auth'
 
   try {
-    const res = await getAuthSecure()
+    const res = await AuthService.getAuthSecure()
 
     if (!res.response.ok) {
       throw new Error('Not authenticated')
