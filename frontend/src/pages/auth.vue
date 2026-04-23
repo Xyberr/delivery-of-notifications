@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import AuthForm from '@/components/AuthForm.vue';
 
+definePage({
+  meta: {
+    needAuth: false,
+  }
+});
 </script>
 
 <template>

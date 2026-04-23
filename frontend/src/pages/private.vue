@@ -11,6 +11,12 @@ const onLogout = async () => {
     console.error('Logout failed:', error);
   }
 }
+
+definePage({
+  meta: {
+    needAuth: true,
+  }
+});
 </script>
 
 <template>
