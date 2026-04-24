@@ -25,7 +25,9 @@ export type PostAuthLoginResponses = {
 export type PostAuthApiKeyData = {
   body?: string
   path?: never
-  query?: never
+  query?: {
+    desc?: string
+  }
   url: '/auth/api-key'
 }
 
@@ -63,35 +65,3 @@ export type PostAuthLogoutResponses = {
    */
   200: unknown
 }
-
-export type GetTestData = {
-  body?: never
-  path?: never
-  query?: never
-  url: '/test'
-}
-
-export type GetTestResponses = {
-  /**
-   * Success
-   */
-  200: string
-}
-
-export type GetTestResponse = GetTestResponses[keyof GetTestResponses]
-
-export type GetData = {
-  body?: never
-  path?: never
-  query?: never
-  url: '/'
-}
-
-export type GetResponses = {
-  /**
-   * Success
-   */
-  200: string
-}
-
-export type GetResponse = GetResponses[keyof GetResponses]

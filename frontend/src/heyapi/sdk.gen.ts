@@ -5,10 +5,6 @@ import { client } from './client.gen'
 import type {
   GetAuthSecureData,
   GetAuthSecureResponses,
-  GetData,
-  GetResponses,
-  GetTestData,
-  GetTestResponses,
   PostAuthApiKeyData,
   PostAuthApiKeyResponses,
   PostAuthLoginData,
@@ -76,26 +72,6 @@ export class AuthService {
   ) {
     return (options?.client ?? client).post<PostAuthLogoutResponses, unknown, ThrowOnError>({
       url: '/auth/logout',
-      ...options,
-    })
-  }
-}
-
-export class NotificationsApiService {
-  public static getTest<ThrowOnError extends boolean = false>(
-    options?: Options<GetTestData, ThrowOnError>,
-  ) {
-    return (options?.client ?? client).get<GetTestResponses, unknown, ThrowOnError>({
-      url: '/test',
-      ...options,
-    })
-  }
-
-  public static get<ThrowOnError extends boolean = false>(
-    options?: Options<GetData, ThrowOnError>,
-  ) {
-    return (options?.client ?? client).get<GetResponses, unknown, ThrowOnError>({
-      url: '/',
       ...options,
     })
   }
