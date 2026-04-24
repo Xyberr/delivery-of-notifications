@@ -8,5 +8,5 @@ namespace Notifications.API.Service.AuthService;
 public interface IAuthService
 {
     Task<string> CreateApiKey(string owner, string desc);
-    Task<(ClaimsPrincipal? principal, AuthResponse? data)> Authenticate(string apiKey);
+    Task<AuthResponse?> LoginAsync(HttpContext context, string apiKey);
 }

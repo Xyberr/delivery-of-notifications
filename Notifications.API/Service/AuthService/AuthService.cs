@@ -1,16 +1,17 @@
 ﻿using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Notifications.API.DTO.Responses;
 using Notifications.API.Entities;
 using Notifications.API.Persistence;
-using Notifications.API.Service.AuthService;
+
+namespace Notifications.API.Service.AuthService;
 
 public class AuthService(AppDbContext db) : IAuthService
 {
-
     public async Task<string> CreateApiKey(string owner, string desc)
     {
         var key = GenerateKey();
@@ -20,7 +21,7 @@ public class AuthService(AppDbContext db) : IAuthService
             Key = key,
             Owner = owner,
             Desc = desc,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow
         };
 
         db.ApiKeys.Add(entity);
@@ -29,36 +30,56 @@ public class AuthService(AppDbContext db) : IAuthService
         return key;
     }
 
-    public async Task<(ClaimsPrincipal?, AuthResponse?)> Authenticate(string apiKey)
+    public async Task<AuthResponse?> LoginAsync(HttpContext context, string apiKey)
     {
-        var entity = await db.ApiKeys
-            .FirstOrDefaultAsync(x => x.Key == apiKey);
-
+        var entity = await ValidateApiKey(apiKey);
         if (entity == null)
-            return (null, null);
+            return null;
 
-        var claims = new List<Claim>
-        {
-            new (ClaimTypes.NameIdentifier, entity.Id.ToString()),
-            new ("owner", entity.Owner),
-            new ("description", entity.Desc ?? ""),
-            new ("createdAt", entity.CreatedAt.ToString("O"))
-        };
+        var claims = CreateClaims(entity);
+        var principal = CreatePrincipal(claims);
 
-        var identity = new ClaimsIdentity(
-            claims,
-            CookieAuthenticationDefaults.AuthenticationScheme);
+        await SignInAsync(context, principal);
 
-        var principal = new ClaimsPrincipal(identity);
-
-        var data = new AuthResponse
+        return new AuthResponse
         {
             Owner = entity.Owner,
             Desc = entity.Desc,
             CreatedAt = entity.CreatedAt
         };
+    }
 
-        return (principal, data);
+    private async Task<ApiKey?> ValidateApiKey(string key)
+    {
+        return await db.ApiKeys
+            .FirstOrDefaultAsync(x => x.Key == key);
+    }
+
+    private List<Claim> CreateClaims(ApiKey entity)
+    {
+        return new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, entity.Id.ToString()),
+            new("owner", entity.Owner),
+            new("description", entity.Desc ?? ""),
+            new("createdAt", entity.CreatedAt.ToString("O"))
+        };
+    }
+
+    private ClaimsPrincipal CreatePrincipal(IEnumerable<Claim> claims)
+    {
+        var identity = new ClaimsIdentity(
+            claims,
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
+        return new ClaimsPrincipal(identity);
+    }
+
+    private async Task SignInAsync(HttpContext context, ClaimsPrincipal principal)
+    {
+        await context.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal);
     }
 
     private string GenerateKey(int length = 32)

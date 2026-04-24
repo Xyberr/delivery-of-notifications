@@ -13,14 +13,12 @@ public class AuthController(IAuthService auth) : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var (principal, data) = await auth.Authenticate(request.ApiKey);
+        var result = await auth.LoginAsync(HttpContext, request.ApiKey);
 
-        if (principal == null || data == null)
+        if (result == null)
             return Unauthorized();
 
-        await HttpContext.SignInAsync(principal);
-        
-        return Ok(data);
+        return Ok(result);
     }
     
     [HttpPost("api-key")] // ТЕСТ, УДАЛИТЬ
@@ -45,6 +43,7 @@ public class AuthController(IAuthService auth) : ControllerBase
         });
     }
 
+    [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {

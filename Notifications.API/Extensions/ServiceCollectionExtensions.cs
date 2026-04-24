@@ -66,27 +66,23 @@ public static class ServiceCollectionExtensions
                 Version = "v1"
             });
 
-            options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
-            {
-                Description = "API Key через header: X-API-KEY",
-                Name = "X-API-KEY",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.ApiKey
+            options.AddSecurityDefinition("CookieAuth", new OpenApiSecurityScheme {
+                In = ParameterLocation.Cookie,
+                Name = "Notifications API",
+                Type = SecuritySchemeType.ApiKey,
+                Description = "Авторизация через Cookie. Просто выполните Login, и кука применится автоматически.",
             });
 
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement {
                 {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
+                    new OpenApiSecurityScheme {
+                        Reference = new OpenApiReference {
                             Type = ReferenceType.SecurityScheme,
-                            Id = "ApiKey"
+                            Id = "CookieAuth",
                         }
                     },
-                    new string[] {}
-                }
+                    Array.Empty<string>()
+                },
             });
         });
 
