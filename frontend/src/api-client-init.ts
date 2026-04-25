@@ -6,7 +6,7 @@ export const initApiClient = () => {
     const authStore = useAuthStore()
 
     client.interceptors.request.use((request) => {
-        if (!request.url.includes('auth/login')) {
+        if (!request.url.includes('auth/login') && !request.url.includes('auth/logout')) {
             if (!authStore.isAuthed) {
                 showToast({
                     severity: 'error',
@@ -31,7 +31,9 @@ export const initApiClient = () => {
                 life: 0
             })
 
-            authStore.logOut()
+            if (!response.url.includes('auth/login') && !response.url.includes('auth/logout')) {
+                authStore.logOut()
+            }
         } else if (response.status === 403) {
             showToast({
                 severity: 'error',
@@ -40,7 +42,7 @@ export const initApiClient = () => {
                 life: 0
             })
         }
-        console.log('API Response:', response);
+
         return response;
     });
 }

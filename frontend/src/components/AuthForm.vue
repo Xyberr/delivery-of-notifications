@@ -20,7 +20,7 @@ const onLogin = () => {
   if (!result.success) {
     parseError.value = result.error.issues[0]?.message as string
   } else {
-    authStore.loginAsync(apiKey.value)
+    authStore.loginAsync(0, apiKey.value)
   }
 }
 </script>

@@ -11,8 +11,6 @@ router.beforeEach((to) => {
   const authStore = useAuthStore()
   const isAuthed = authStore.isAuthed
 
-  console.log(`Meta: ${to.meta}; IsAuthed: ${isAuthed}`)
-
   if (to.name === '/[...unknown]') {
     return;
   }
