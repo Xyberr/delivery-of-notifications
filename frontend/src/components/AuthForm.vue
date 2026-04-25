@@ -5,7 +5,7 @@ import { ref } from 'vue';
 import * as z from "zod"; 
 
 // todo: remove api key
-const apiKey = ref('wai0H4Qe5qLtHYbd7E3UDvObhEEMBrla')
+const apiKey = ref('jqR2aF5A2nKcKtW5TDrSc1sGP2DALsoA')
 const authStore = useAuthStore();
 const parseError = ref<null | string>('')
 

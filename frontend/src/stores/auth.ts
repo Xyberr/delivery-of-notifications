@@ -1,10 +1,11 @@
 import { reactive, ref } from 'vue';
-import { createGlobalState, useAsyncState } from '@vueuse/core';
-import { useRouter } from 'vue-router';
+import { createGlobalState, useAsyncState, useLocalStorage } from '@vueuse/core';
+import router from '@/router'
 import { AuthService } from '@/heyapi';
 
 export const useAuthStore = createGlobalState(() => {
-  const router = useRouter();
+
+  const isAuthed = useLocalStorage<boolean>('isAuthed', false)
 
   const isLoginLoading = ref(false)
   const loginError = ref<string | null>(null)
@@ -19,6 +20,7 @@ export const useAuthStore = createGlobalState(() => {
         throwOnError: true,
       })
 
+      isAuthed.value = true
       router.push('/private')
     } catch (error: any) {
       loginError.value = error.title ? `${error.title}: ${error.status}` : 'Login failed'
@@ -30,14 +32,16 @@ export const useAuthStore = createGlobalState(() => {
   async function logOut(reason?: string) {
     try {
       await AuthService.postAuthLogout()
-      router.push('/auth')
     } catch (error) {
       console.error('Logout failed:', error);
+    } finally {
+      isAuthed.value = false
       router.push('/auth')
     }
   }
 
   return reactive({
+    isAuthed,
     isLoginLoading,
     loginError,
     loginAsync,
