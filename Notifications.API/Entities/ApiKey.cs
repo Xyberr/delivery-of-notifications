@@ -13,6 +13,4 @@ public class ApiKey : BaseEntity
     public string Owner { get; set; } = null!;
     
     public string Desc { get; set; } = null!;
-
-    public DateTime CreatedAt { get; set; }
 }

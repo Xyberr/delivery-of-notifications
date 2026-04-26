@@ -21,7 +21,8 @@ public class AuthService(AppDbContext db) : IAuthService
             Key = key,
             Owner = owner,
             Desc = desc,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
         };
 
         db.ApiKeys.Add(entity);
@@ -45,7 +46,8 @@ public class AuthService(AppDbContext db) : IAuthService
         {
             Owner = entity.Owner,
             Desc = entity.Desc,
-            CreatedAt = entity.CreatedAt
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt
         };
     }
 
@@ -62,7 +64,8 @@ public class AuthService(AppDbContext db) : IAuthService
             new(ClaimTypes.NameIdentifier, entity.Id.ToString()),
             new("owner", entity.Owner),
             new("description", entity.Desc ?? ""),
-            new("createdAt", entity.CreatedAt.ToString("O"))
+            new("createdAt", entity.CreatedAt.ToString("O")),
+            new("updatedAt", entity.UpdatedAt.ToString("O"))
         };
     }
 
