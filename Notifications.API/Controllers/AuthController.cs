@@ -22,9 +22,9 @@ public class AuthController(IAuthService auth) : ControllerBase
     }
     
     [HttpPost("api-key")] // ТЕСТ, УДАЛИТЬ
-    public async Task<IActionResult> CreateApiKey([FromBody] string owner, string desc)
+    public async Task<IActionResult> CreateApiKey([FromBody]string owner, string desc, string createBy)
     {
-        var key = await auth.CreateApiKey(owner, desc);
+        var key = await auth.CreateApiKey(owner, desc, createBy);
         return Ok(new { key });
     }
 
@@ -39,7 +39,9 @@ public class AuthController(IAuthService auth) : ControllerBase
             message = "You are authorized",
             owner,
             desc = User.FindFirst("description")?.Value,
-            CreatedAt = User.FindFirst("createdAt")?.Value
+            CreatedAt = User.FindFirst("createdAt")?.Value,
+            UpdatedAt = User.FindFirst("updatedAt")?.Value,
+            CreatedBy = User.FindFirst("createdBy")?.Value,
         });
     }
 

@@ -12,7 +12,7 @@ namespace Notifications.API.Service.AuthService;
 
 public class AuthService(AppDbContext db) : IAuthService
 {
-    public async Task<string> CreateApiKey(string owner, string desc)
+    public async Task<string> CreateApiKey(string owner, string desc, string createBy)
     {
         var key = GenerateKey();
 
@@ -21,8 +21,9 @@ public class AuthService(AppDbContext db) : IAuthService
             Key = key,
             Owner = owner,
             Desc = desc,
+            CreateBy = createBy,
             CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         db.ApiKeys.Add(entity);
@@ -47,7 +48,8 @@ public class AuthService(AppDbContext db) : IAuthService
             Owner = entity.Owner,
             Desc = entity.Desc,
             CreatedAt = entity.CreatedAt,
-            UpdatedAt = entity.UpdatedAt
+            UpdatedAt = entity.UpdatedAt,
+            CreateBy = entity.CreateBy
         };
     }
 
