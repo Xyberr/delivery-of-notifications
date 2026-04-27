@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Notifications.API.Entities;
 
-public class ApiKey : BaseEntity, ITimeStampable
+public class ApiKey : BaseEntity
 {
     [Required] 
     public string Key { get; set; } = null!;
@@ -12,7 +12,4 @@ public class ApiKey : BaseEntity, ITimeStampable
     public string Owner { get; set; } = null!;
     public string Desc { get; set; } = null!;
     public string CreatedBy { get; set; } = null!;
-    
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
 }
