@@ -4,14 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Notifications.API.Entities;
 
-public class ApiKey : BaseEntity
+public class ApiKey : BaseEntity, ITimeStampable
 {
     [Required] 
     public string Key { get; set; } = null!;
-
     [Required] 
     public string Owner { get; set; } = null!;
-    
     public string Desc { get; set; } = null!;
-    public string CreateBy { get; set; } = null!;
+    public string CreatedBy { get; set; } = null!;
+    
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }

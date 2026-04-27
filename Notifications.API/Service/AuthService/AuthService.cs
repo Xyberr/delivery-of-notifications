@@ -12,7 +12,7 @@ namespace Notifications.API.Service.AuthService;
 
 public class AuthService(AppDbContext db) : IAuthService
 {
-    public async Task<string> CreateApiKey(string owner, string desc, string createBy)
+    public async Task<string> CreateApiKey(string owner, string desc, string createdBy)
     {
         var key = GenerateKey();
 
@@ -21,7 +21,7 @@ public class AuthService(AppDbContext db) : IAuthService
             Key = key,
             Owner = owner,
             Desc = desc,
-            CreateBy = createBy,
+            CreatedBy = createdBy,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -34,7 +34,8 @@ public class AuthService(AppDbContext db) : IAuthService
 
     public async Task<AuthResponse?> LoginAsync(HttpContext context, string apiKey)
     {
-        var entity = await ValidateApiKey(apiKey);
+        var entity = await GetApiKeyAsync(apiKey);
+
         if (entity == null)
             return null;
 
@@ -43,25 +44,39 @@ public class AuthService(AppDbContext db) : IAuthService
 
         await SignInAsync(context, principal);
 
+        return MapToResponse(entity);
+    }
+    
+    private async Task<ApiKey?> GetApiKeyAsync(string key)
+    {
+        try
+        {
+            return await db.ApiKeys
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Key == key);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private AuthResponse MapToResponse(ApiKey entity)
+    {
         return new AuthResponse
         {
             Owner = entity.Owner,
             Desc = entity.Desc,
             CreatedAt = entity.CreatedAt,
             UpdatedAt = entity.UpdatedAt,
-            CreateBy = entity.CreateBy
+            CreateBy = entity.CreatedBy
         };
     }
 
-    private async Task<ApiKey?> ValidateApiKey(string key)
-    {
-        return await db.ApiKeys
-            .FirstOrDefaultAsync(x => x.Key == key);
-    }
 
     private List<Claim> CreateClaims(ApiKey entity)
     {
-        return new List<Claim>
+        return new()
         {
             new(ClaimTypes.NameIdentifier, entity.Id.ToString()),
             new("owner", entity.Owner),

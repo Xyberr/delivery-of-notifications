@@ -1,7 +1,12 @@
-﻿namespace Notifications.API.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-public abstract class TimeStampable
+namespace Notifications.API.Entities;
+
+public interface ITimeStampable
 {
+    [Column(TypeName = "timestamp with time zone")]
     public DateTime CreatedAt { get; set; }
+    
+    [Column(TypeName = "timestamp with time zone")]
     public DateTime UpdatedAt { get; set; }
 }

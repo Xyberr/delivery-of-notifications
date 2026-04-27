@@ -2,7 +2,7 @@
 
 namespace Notifications.API.Entities;
 
-public abstract class BaseEntity : TimeStampable
+public abstract class BaseEntity
 {
     [Key]
     public long Id { get; set; }
