@@ -11,16 +11,15 @@ export const useAuthStore = createGlobalState(() => {
     async (apiKey: string) => {
       return AuthService.postAuthLogin({
         body: { apiKey },
-        throwOnError: true,
       })
     },
     null,
     {
       immediate: false,
       resetOnExecute: false,
-
-      onSuccess() {
-        isAuthed.value = true
+      throwError: true,
+      onSuccess(data) {
+        isAuthed.value = !!data?.data;
         router.push('/private')
       },
     },

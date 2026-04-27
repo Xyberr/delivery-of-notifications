@@ -20,7 +20,10 @@ const onLogin = () => {
   if (!result.success) {
     parseError.value = result.error.issues[0]?.message as string
   } else {
-    authStore.loginAsync(0, apiKey.value)
+    try {
+      authStore.loginAsync(0, apiKey.value)
+    } catch (error) {
+    }
   }
 }
 </script>
@@ -37,7 +40,6 @@ const onLogin = () => {
         <label for="on_label">API Key</label>
       </FloatLabel>
 
-      <p v-if="authStore.loginError" class="error">{{ authStore.loginError }}</p>
       <p v-if="parseError" class="error">{{ parseError }}</p>
 
       <Button label="Войти" @click="onLogin" :disabled="authStore.isLoginLoading" />
