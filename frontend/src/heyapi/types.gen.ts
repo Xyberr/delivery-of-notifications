@@ -4,6 +4,14 @@ export type ClientOptions = {
   baseUrl: 'http://localhost:5112' | (string & {})
 }
 
+export type AuthResponse = {
+  owner?: string | null
+  desc?: string | null
+  createBy?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
+
 export type LoginRequest = {
   apiKey?: string | null
 }
@@ -19,14 +27,17 @@ export type PostAuthLoginResponses = {
   /**
    * Success
    */
-  200: unknown
+  200: AuthResponse
 }
+
+export type PostAuthLoginResponse = PostAuthLoginResponses[keyof PostAuthLoginResponses]
 
 export type PostAuthApiKeyData = {
   body?: string
   path?: never
   query?: {
     desc?: string
+    createBy?: string
   }
   url: '/auth/api-key'
 }

@@ -1,6 +1,7 @@
 import { defineConfig } from '@hey-api/openapi-ts';
+import { loadEnv } from 'vite';
 
-const swaggerUrl = process.env.SWAGGER_URL;
+const swaggerUrl = loadEnv('development', process.cwd()).VITE_SWAGGER_URL;
 
 if (!swaggerUrl) {
     throw new Error('SWAGGER_URL environment variable is not defined');

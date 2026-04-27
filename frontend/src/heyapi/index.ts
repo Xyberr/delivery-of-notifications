@@ -2,6 +2,7 @@
 
 export { AuthService, type Options } from './sdk.gen'
 export type {
+  AuthResponse,
   ClientOptions,
   GetAuthSecureData,
   GetAuthSecureResponses,
@@ -9,6 +10,7 @@ export type {
   PostAuthApiKeyData,
   PostAuthApiKeyResponses,
   PostAuthLoginData,
+  PostAuthLoginResponse,
   PostAuthLoginResponses,
   PostAuthLogoutData,
   PostAuthLogoutResponses,
