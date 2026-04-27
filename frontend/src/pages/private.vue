@@ -7,9 +7,7 @@ const authStore = useAuthStore();
 const onLogout = async () => {
   try {
     await authStore.logOut();
-  } catch (error) {
-    console.error('Logout failed:', error);
-  }
+  } catch (error) {}
 }
 
 definePage({

@@ -41,6 +41,13 @@ export const initApiClient = () => {
                 detail: 'Отказано в доступе',
                 life: 0
             })
+        } else if (response.status > 399) {
+            showToast({
+                severity: 'error',
+                summary: 'Ошибка: ' + response.status,
+                detail: 'Произошла ошибка',
+                life: 0
+            })
         }
 
         return response;

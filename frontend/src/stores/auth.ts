@@ -7,13 +7,9 @@ export const useAuthStore = createGlobalState(() => {
 
   const isAuthed = useLocalStorage<boolean>('isAuthed', false)
 
-  const loginError = ref<string | null>(null)
-
   const { isLoading: isLoginLoading, execute: loginAsync} = useAsyncState(
     async (apiKey: string) => {
-      loginError.value = null
-
-      return await AuthService.postAuthLogin({
+      return AuthService.postAuthLogin({
         body: { apiKey },
         throwOnError: true,
       })
@@ -27,19 +23,12 @@ export const useAuthStore = createGlobalState(() => {
         isAuthed.value = true
         router.push('/private')
       },
-
-      onError(error: any) {
-        loginError.value =
-          error?.title
-            ? `${error.title}: ${error.status}`
-            : 'Login failed'
-      },
     },
   )
 
   async function logOut(reason?: string) {
     try {
-      await AuthService.postAuthLogout()
+      AuthService.postAuthLogout()
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
@@ -53,6 +42,5 @@ export const useAuthStore = createGlobalState(() => {
     isLoginLoading,
     loginAsync,
     logOut,
-    loginError,
   })
 });
