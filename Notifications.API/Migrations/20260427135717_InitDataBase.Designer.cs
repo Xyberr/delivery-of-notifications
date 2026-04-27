@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Notifications.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260427032010_RefacrorColumns")]
-    partial class RefacrorColumns
+    [Migration("20260427135717_InitDataBase")]
+    partial class InitDataBase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
