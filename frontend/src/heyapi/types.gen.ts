@@ -4,6 +4,10 @@ export type ClientOptions = {
   baseUrl: 'http://localhost:5112' | (string & {})
 }
 
+export type ApiKeyResponse = {
+  key?: string | null
+}
+
 export type AuthResponse = {
   owner?: string | null
   desc?: string | null
@@ -16,12 +20,39 @@ export type LoginRequest = {
   apiKey?: string | null
 }
 
+export type ProblemDetails = {
+  type?: string | null
+  title?: string | null
+  status?: number | null
+  detail?: string | null
+  instance?: string | null
+  [key: string]: unknown
+}
+
+export type SecureResponse = {
+  message?: string | null
+  owner?: string | null
+  desc?: string | null
+  createdAt?: string | null
+  updatedAt?: string | null
+  createdBy?: string | null
+}
+
 export type PostAuthLoginData = {
   body?: LoginRequest
   path?: never
   query?: never
   url: '/auth/login'
 }
+
+export type PostAuthLoginErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails
+}
+
+export type PostAuthLoginError = PostAuthLoginErrors[keyof PostAuthLoginErrors]
 
 export type PostAuthLoginResponses = {
   /**
@@ -42,12 +73,23 @@ export type PostAuthApiKeyData = {
   url: '/auth/api-key'
 }
 
+export type PostAuthApiKeyErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails
+}
+
+export type PostAuthApiKeyError = PostAuthApiKeyErrors[keyof PostAuthApiKeyErrors]
+
 export type PostAuthApiKeyResponses = {
   /**
    * Success
    */
-  200: unknown
+  200: ApiKeyResponse
 }
+
+export type PostAuthApiKeyResponse = PostAuthApiKeyResponses[keyof PostAuthApiKeyResponses]
 
 export type GetAuthSecureData = {
   body?: never
@@ -56,12 +98,23 @@ export type GetAuthSecureData = {
   url: '/auth/secure'
 }
 
+export type GetAuthSecureErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails
+}
+
+export type GetAuthSecureError = GetAuthSecureErrors[keyof GetAuthSecureErrors]
+
 export type GetAuthSecureResponses = {
   /**
    * Success
    */
-  200: unknown
+  200: SecureResponse
 }
+
+export type GetAuthSecureResponse = GetAuthSecureResponses[keyof GetAuthSecureResponses]
 
 export type PostAuthLogoutData = {
   body?: never
@@ -70,9 +123,20 @@ export type PostAuthLogoutData = {
   url: '/auth/logout'
 }
 
+export type PostAuthLogoutErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails
+}
+
+export type PostAuthLogoutError = PostAuthLogoutErrors[keyof PostAuthLogoutErrors]
+
 export type PostAuthLogoutResponses = {
   /**
-   * Success
+   * No Content
    */
-  200: unknown
+  204: void
 }
+
+export type PostAuthLogoutResponse = PostAuthLogoutResponses[keyof PostAuthLogoutResponses]

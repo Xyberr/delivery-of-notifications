@@ -4,12 +4,16 @@ import type { Client, Options as Options2, TDataShape } from './client'
 import { client } from './client.gen'
 import type {
   GetAuthSecureData,
+  GetAuthSecureErrors,
   GetAuthSecureResponses,
   PostAuthApiKeyData,
+  PostAuthApiKeyErrors,
   PostAuthApiKeyResponses,
   PostAuthLoginData,
+  PostAuthLoginErrors,
   PostAuthLoginResponses,
   PostAuthLogoutData,
+  PostAuthLogoutErrors,
   PostAuthLogoutResponses,
 } from './types.gen'
 
@@ -35,7 +39,11 @@ export class AuthService {
   public static postAuthLogin<ThrowOnError extends boolean = false>(
     options?: Options<PostAuthLoginData, ThrowOnError>,
   ) {
-    return (options?.client ?? client).post<PostAuthLoginResponses, unknown, ThrowOnError>({
+    return (options?.client ?? client).post<
+      PostAuthLoginResponses,
+      PostAuthLoginErrors,
+      ThrowOnError
+    >({
       url: '/auth/login',
       ...options,
       headers: {
@@ -48,7 +56,11 @@ export class AuthService {
   public static postAuthApiKey<ThrowOnError extends boolean = false>(
     options?: Options<PostAuthApiKeyData, ThrowOnError>,
   ) {
-    return (options?.client ?? client).post<PostAuthApiKeyResponses, unknown, ThrowOnError>({
+    return (options?.client ?? client).post<
+      PostAuthApiKeyResponses,
+      PostAuthApiKeyErrors,
+      ThrowOnError
+    >({
       url: '/auth/api-key',
       ...options,
       headers: {
@@ -61,18 +73,20 @@ export class AuthService {
   public static getAuthSecure<ThrowOnError extends boolean = false>(
     options?: Options<GetAuthSecureData, ThrowOnError>,
   ) {
-    return (options?.client ?? client).get<GetAuthSecureResponses, unknown, ThrowOnError>({
-      url: '/auth/secure',
-      ...options,
-    })
+    return (options?.client ?? client).get<
+      GetAuthSecureResponses,
+      GetAuthSecureErrors,
+      ThrowOnError
+    >({ url: '/auth/secure', ...options })
   }
 
   public static postAuthLogout<ThrowOnError extends boolean = false>(
     options?: Options<PostAuthLogoutData, ThrowOnError>,
   ) {
-    return (options?.client ?? client).post<PostAuthLogoutResponses, unknown, ThrowOnError>({
-      url: '/auth/logout',
-      ...options,
-    })
+    return (options?.client ?? client).post<
+      PostAuthLogoutResponses,
+      PostAuthLogoutErrors,
+      ThrowOnError
+    >({ url: '/auth/logout', ...options })
   }
 }
