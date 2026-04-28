@@ -30,7 +30,7 @@ const onLogin = async () => {
       await authStore.loginAsync(0, apiKey.value)
       router.push('/private')
     } catch (error) {
-      toast.add({ severity: 'error', summary: 'Ошибка', detail: 'Не удалось войти. Проверьте API ключ и попробуйте снова.' });
+      toast.add({ severity: 'error', summary: 'Неизвестная ошибка', detail: `${error}` });
     }
   }
 }
