@@ -11,6 +11,8 @@ namespace Notifications.API.Controllers;
 public class AuthController(IAuthService auth) : ControllerBase
 {
     [HttpPost("login")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var result = await auth.LoginAsync(HttpContext, request.ApiKey);
@@ -22,6 +24,7 @@ public class AuthController(IAuthService auth) : ControllerBase
     }
     
     [HttpPost("api-key")] // ТЕСТ, УДАЛИТЬ
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateApiKey([FromBody]string owner, string desc, string createBy)
     {
         var key = await auth.CreateApiKey(owner, desc, createBy);
@@ -30,6 +33,8 @@ public class AuthController(IAuthService auth) : ControllerBase
 
     [Authorize]
     [HttpGet("secure")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult Secure()
     {
         var owner = User.FindFirst("owner")?.Value;
@@ -47,6 +52,8 @@ public class AuthController(IAuthService auth) : ControllerBase
 
     [Authorize]
     [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync();
