@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth';
-import { Button, FloatLabel, InputText, Panel } from 'primevue';
+import { Button, FloatLabel, InputText, Panel, useToast } from 'primevue';
 import { ref } from 'vue';
 import * as z from "zod"; 
 
-// todo: remove api key
 const apiKey = ref<string>(import.meta.env.VITE_API_KEY || '');
 const authStore = useAuthStore();
 const parseError = ref<null | string>('')
+const toast = useToast();
 
 const LoginScheme = z.object({
   apiKey: z.string().regex(/^[A-Za-z0-9]+$/, "Ключ должен содержать только латинские буквы и цифры"),
 })
 
-const onLogin = () => {
+const onLogin = async () => {
   parseError.value = null
   const result = LoginScheme.safeParse({apiKey: apiKey.value})
 
@@ -21,8 +21,9 @@ const onLogin = () => {
     parseError.value = result.error.issues[0]?.message as string
   } else {
     try {
-      authStore.loginAsync(0, apiKey.value)
+      await authStore.loginAsync(0, apiKey.value)
     } catch (error) {
+      toast.add({ severity: 'error', summary: 'Ошибка', detail: 'Не удалось войти. Проверьте API ключ и попробуйте снова.' });
     }
   }
 }
