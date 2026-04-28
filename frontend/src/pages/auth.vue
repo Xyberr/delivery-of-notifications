@@ -9,9 +9,9 @@ definePage({
 </script>
 
 <template>
-  <div class="authPage">
+  <main class="authPage">
     <AuthForm />
-  </div>
+  </main>
 </template>
 
 <style scoped>

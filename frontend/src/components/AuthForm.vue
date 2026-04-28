@@ -2,26 +2,33 @@
 import { useAuthStore } from '@/stores/auth';
 import { Button, FloatLabel, InputText, Panel, useToast } from 'primevue';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import * as z from "zod"; 
 
 const apiKey = ref<string>(import.meta.env.VITE_API_KEY || '');
 const authStore = useAuthStore();
-const parseError = ref<null | string>('')
+const parseError = ref<null | string>(null)
 const toast = useToast();
+const router = useRouter();
 
-const LoginScheme = z.object({
-  apiKey: z.string().regex(/^[A-Za-z0-9]+$/, "Ключ должен содержать только латинские буквы и цифры"),
+const LoginSchema = z.object({
+  apiKey: z
+  .string()
+  .trim()
+  .nonempty("Введите API Key")
+  .regex(/^[A-Za-z0-9]+$/, "Ключ должен содержать только латинские буквы и цифры"),
 })
 
 const onLogin = async () => {
   parseError.value = null
-  const result = LoginScheme.safeParse({apiKey: apiKey.value})
+  const result = LoginSchema.safeParse({apiKey: apiKey.value})
 
   if (!result.success) {
-    parseError.value = result.error.issues[0]?.message as string
+    parseError.value = result.error.issues[0]?.message as string ?? 'Ошибка валидации'
   } else {
     try {
       await authStore.loginAsync(0, apiKey.value)
+      router.push('/private')
     } catch (error) {
       toast.add({ severity: 'error', summary: 'Ошибка', detail: 'Не удалось войти. Проверьте API ключ и попробуйте снова.' });
     }
@@ -37,13 +44,17 @@ const onLogin = async () => {
 
     <form class="authPanelContent" @submit.prevent="onLogin">
       <FloatLabel variant="on">
-        <InputText id="on_label" v-model="apiKey" type="text" :disabled="authStore.isLoginLoading" />
+        <InputText id="on_label" v-model="apiKey" type="text" :disabled="authStore.isLoginLoading.value" />
         <label for="on_label">API Key</label>
       </FloatLabel>
 
       <p v-if="parseError" class="error">{{ parseError }}</p>
 
-      <Button label="Войти" @click="onLogin" :disabled="authStore.isLoginLoading" />
+      <Button 
+        label="Войти" 
+        type="submit"
+        :disabled="authStore.isLoginLoading.value" 
+      />
     </form>
   </Panel>
 </template>

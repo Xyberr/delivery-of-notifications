@@ -1,7 +1,6 @@
-import { reactive, ref } from 'vue';
 import { createGlobalState, useAsyncState, useLocalStorage } from '@vueuse/core';
-import router from '@/router'
 import { AuthService } from '@/heyapi';
+import { showToast } from '@/toastService';
 
 export const useAuthStore = createGlobalState(() => {
 
@@ -20,26 +19,30 @@ export const useAuthStore = createGlobalState(() => {
       throwError: true,
       onSuccess(data) {
         isAuthed.value = !!data?.data;
-        router.push('/private')
       },
     },
   )
 
-  async function logOut(reason?: string) {
+  async function logout() {
     try {
-      AuthService.postAuthLogout()
+      await AuthService.postAuthLogout()
     } catch (error) {
       console.error('Logout failed:', error);
+      showToast({
+        severity: 'error',
+        summary: 'Ошибка при выходе',
+        detail: `${error}`,
+        life: 0
+      })
     } finally {
       isAuthed.value = false
-      router.push('/auth')
     }
   }
 
-  return reactive({
+  return {
     isAuthed,
     isLoginLoading,
     loginAsync,
-    logOut,
-  })
+    logout,
+  }
 });

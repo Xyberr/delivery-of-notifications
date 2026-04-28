@@ -1,13 +1,19 @@
+import { useRouter } from "vue-router";
 import { client } from "./heyapi/client.gen";
 import { useAuthStore } from "./stores/auth";
 import { showToast } from "./toastService";
 
 export const initApiClient = () => {
     const authStore = useAuthStore()
+    const router = useRouter()
+    
+    const isAuthEndpoint = (url = '') => {
+        return url.includes('auth/login') || url.includes('auth/logout')
+    }
 
-    client.interceptors.request.use((request) => {
-        if (!request.url.includes('auth/login') && !request.url.includes('auth/logout')) {
-            if (!authStore.isAuthed) {
+    client.interceptors.request.use(async (request) => {
+        if (!isAuthEndpoint(request.url)) {
+            if (!authStore.isAuthed.value) {
                 showToast({
                     severity: 'error',
                     summary: 'Сессия истекла',
@@ -15,7 +21,9 @@ export const initApiClient = () => {
                     life: 0
                 })
 
-                authStore.logOut();
+                await authStore.logout();
+                router.push('/auth')
+                throw new Error('Пользователь не авторизирован')
             }
         }
 
@@ -31,8 +39,9 @@ export const initApiClient = () => {
                 life: 0
             })
 
-            if (!response.url.includes('auth/login') && !response.url.includes('auth/logout')) {
-                authStore.logOut()
+            if (!isAuthEndpoint(response.url)) {
+                await authStore.logout()
+                router.push('/auth')
             }
         } else if (response.status === 403) {
             showToast({

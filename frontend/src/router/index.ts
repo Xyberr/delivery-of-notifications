@@ -7,12 +7,13 @@ const router = createRouter({
   routes,
 })
 
+const authStore = useAuthStore()
+
 router.beforeEach((to) => {
-  const authStore = useAuthStore()
-  const isAuthed = authStore.isAuthed
+  const isAuthed = authStore.isAuthed.value
 
   if (to.name === '/[...unknown]') {
-    return;
+    return true;
   }
 
   if (to.meta.needAuth && !isAuthed) {
