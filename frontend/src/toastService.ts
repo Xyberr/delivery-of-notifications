@@ -5,18 +5,18 @@ type ToastFn = (msg: ToastMessageOptions) => void
 let toastHandler: ToastFn | null = null
 
 export const setToast = (fn: ToastFn) => {
-toastHandler = fn
+  toastHandler = fn
 }
 
 export const clearToast = () => {
-toastHandler = null
+  toastHandler = null
 }
 
 export const showToast = (msg: ToastMessageOptions) => {
-if (!toastHandler) {
-console.warn('Toast is not initialized')
-return
-}
+  if (!toastHandler) {
+    console.warn('Toast is not initialized')
+    return
+  }
 
-toastHandler(msg)
+  toastHandler(msg)
 }
