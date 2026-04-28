@@ -1,12 +1,22 @@
 import type { ToastMessageOptions } from 'primevue/toast'
 
-let toastInstance: ((msg: ToastMessageOptions) => void) | null = null
+type ToastFn = (msg: ToastMessageOptions) => void
 
-export const setToast = (fn: (msg: ToastMessageOptions) => void) => {
-  toastInstance = fn
+let toastHandler: ToastFn | null = null
+
+export const setToast = (fn: ToastFn) => {
+toastHandler = fn
+}
+
+export const clearToast = () => {
+toastHandler = null
 }
 
 export const showToast = (msg: ToastMessageOptions) => {
-  if (!toastInstance) return
-  toastInstance(msg)
+if (!toastHandler) {
+console.warn('Toast is not initialized')
+return
+}
+
+toastHandler(msg)
 }
