@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth';
-import { Button } from 'primevue';
+import { Button, useToast } from 'primevue';
 
 const authStore = useAuthStore();
+const toast = useToast();
 
 const onLogout = async () => {
   try {
-    await authStore.logOut();
-  } catch (error) {}
+    await authStore.logout();
+  } catch (error) {
+    toast.add({ severity: 'error', summary: 'Ошибка при выходе', detail: `${error}` });
+  }
 }
 
 definePage({
