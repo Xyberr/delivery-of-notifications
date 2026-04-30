@@ -3,14 +3,13 @@ using Notifications.API.DTO.Requests;
 using Notifications.API.DTO.Responses;
 using Notifications.API.DTO;
 using Notifications.API.Entities;
+using Notifications.API.Entities.Enums;
 using Notifications.API.Persistence;
 
 namespace Notifications.API.Service.MessageService;
 
 public class MessageService(AppDbContext db, ILogger<MessageService> logger) : IMessageService
 {
-    private const int PendingStatusCode = 0;
-
     public async Task<CreateMessageResponse> CreateAsync(CreateMessageRequest request)
     {
         try
@@ -32,12 +31,12 @@ public class MessageService(AppDbContext db, ILogger<MessageService> logger) : I
         }
         catch (DbUpdateException ex)
         {
-            logger.LogError(ex, "Database error while creating message");
-            throw new Exception("Ошибка при сохранении сообщения в БД");
+            logger.LogError(ex, "Ошибка базы данных при создании сообщения");
+            throw new Exception("Ошибка при сохранении сообщения в базе данных");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error while creating message");
+            logger.LogError(ex, "Непредвиденная ошибка при создании сообщения");
             throw;
         }
     }
@@ -45,10 +44,10 @@ public class MessageService(AppDbContext db, ILogger<MessageService> logger) : I
     private async Task<DeliveryStatus> GetPendingStatusAsync()
     {
         var status = await db.DeliveryStatuses
-            .FirstOrDefaultAsync(x => x.Code == PendingStatusCode);
+            .FirstOrDefaultAsync(x => x.Code == (int)DeliveryStatusCode.Pending);
 
         if (status == null)
-            throw new Exception("DeliveryStatus 'Pending' not found");
+            throw new Exception("Статус доставки 'Pending' не найден");
 
         return status;
     }
@@ -56,7 +55,7 @@ public class MessageService(AppDbContext db, ILogger<MessageService> logger) : I
     private async Task ValidateRecipientsAsync(List<RecipientDto> recipients)
     {
         if (recipients == null || recipients.Count == 0)
-            throw new Exception("Recipients list cannot be empty");
+            throw new Exception("Список получателей не может быть пустым");
 
         var ids = recipients
             .Select(r => r.ContactTypeId)
@@ -71,7 +70,7 @@ public class MessageService(AppDbContext db, ILogger<MessageService> logger) : I
         var invalidIds = ids.Except(existingIds).ToList();
 
         if (invalidIds.Any())
-            throw new Exception($"Invalid ContactTypeIds: {string.Join(", ", invalidIds)}");
+            throw new Exception($"Некорректные ContactTypeId: {string.Join(", ", invalidIds)}");
     }
 
     private Message BuildMessage(CreateMessageRequest request, long statusId)
