@@ -7,6 +7,12 @@ const router = useRouter()
 const onLeave = () => {
   router.push('/')
 }
+
+definePage({
+  meta: {
+    needAuth: false,
+  }
+});
 </script>
 
 <template>

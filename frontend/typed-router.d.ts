@@ -41,6 +41,20 @@ declare module 'vue-router/auto-routes' {
       { unknown: ParamValue<false> },
       | never
     >,
+    '/auth': RouteRecordInfo<
+      '/auth',
+      '/auth',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/private': RouteRecordInfo<
+      '/private',
+      '/private',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -63,6 +77,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/[...unknown].vue': {
       routes:
         | '/[...unknown]'
+      views:
+        | never
+    }
+    'src/pages/auth.vue': {
+      routes:
+        | '/auth'
+      views:
+        | never
+    }
+    'src/pages/private.vue': {
+      routes:
+        | '/private'
       views:
         | never
     }
