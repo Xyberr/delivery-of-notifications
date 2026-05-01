@@ -9,9 +9,9 @@ definePage({
 </script>
 
 <template>
-    <div class="sendPage">
+    <main class="sendPage">
         <SendForm />
-    </div>
+    </main>
 </template>
 
 <style scoped>
