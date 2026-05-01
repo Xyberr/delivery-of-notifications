@@ -41,9 +41,6 @@ declare module 'vue-router/auto-routes' {
       { unknown: ParamValue<false> },
       | never
     >,
-    '/send': RouteRecordInfo<
-      '/send',
-      '/send',
     '/auth': RouteRecordInfo<
       '/auth',
       '/auth',
@@ -54,6 +51,13 @@ declare module 'vue-router/auto-routes' {
     '/private': RouteRecordInfo<
       '/private',
       '/private',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/send': RouteRecordInfo<
+      '/send',
+      '/send',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -83,9 +87,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/send.vue': {
-      routes:
-        | '/send'
     'src/pages/auth.vue': {
       routes:
         | '/auth'
@@ -95,6 +96,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/private.vue': {
       routes:
         | '/private'
+      views:
+        | never
+    }
+    'src/pages/send.vue': {
+      routes:
+        | '/send'
       views:
         | never
     }

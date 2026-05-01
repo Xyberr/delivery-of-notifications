@@ -20,9 +20,8 @@ router.beforeEach((to) => {
     return '/auth'
   }
 
-  // todo: replace '/private' with actual private route
   if (to.path === '/auth' && isAuthed) {
-    return '/private'
+    return '/send'
   }
 
   return true
