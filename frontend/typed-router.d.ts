@@ -44,6 +44,16 @@ declare module 'vue-router/auto-routes' {
     '/send': RouteRecordInfo<
       '/send',
       '/send',
+    '/auth': RouteRecordInfo<
+      '/auth',
+      '/auth',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/private': RouteRecordInfo<
+      '/private',
+      '/private',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -76,6 +86,15 @@ declare module 'vue-router/auto-routes' {
     'src/pages/send.vue': {
       routes:
         | '/send'
+    'src/pages/auth.vue': {
+      routes:
+        | '/auth'
+      views:
+        | never
+    }
+    'src/pages/private.vue': {
+      routes:
+        | '/private'
       views:
         | never
     }
