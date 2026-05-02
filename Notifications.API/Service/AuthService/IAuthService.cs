@@ -1,7 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
-using Notifications.API.DTO.Responses;
-using Notifications.API.Entities;
+﻿using Notifications.API.DTO.Responses;
 
 namespace Notifications.API.Service.AuthService;
 
