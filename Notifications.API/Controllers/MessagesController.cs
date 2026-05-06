@@ -8,6 +8,7 @@ namespace Notifications.API.Controllers;
 
 [ApiController]
 [Route("messages")]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [Authorize]
 public class MessagesController(IMessageService service) : ControllerBase
 {
@@ -24,6 +25,7 @@ public class MessagesController(IMessageService service) : ControllerBase
     }
 
     [HttpGet("{id:long}")]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> Get(long id, CancellationToken cancellationToken)
     {
         var result = await service.GetByIdAsync(id, cancellationToken);
@@ -35,6 +37,7 @@ public class MessagesController(IMessageService service) : ControllerBase
     }
 
     [HttpGet]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetList(int? page, int? pageSize, string? sortBy, bool desc = true, CancellationToken cancellationToken = default)
     {
         var result = await service.GetListAsync(

@@ -10,7 +10,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<ApiKey> ApiKeys { get; set; }
     public DbSet<Message> Messages { get; set; }
     public DbSet<Recipient> MessageRecipients { get; set; }
-    public DbSet<MessageAttachment> MessageAttachments { get; set; }
     public DbSet<ContactType> ContactTypes { get; set; }
     public DbSet<DeliveryStatus> DeliveryStatuses { get; set; }
 
@@ -18,28 +17,24 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         var now = DateTime.UtcNow;
 
-        modelBuilder.Entity<ContactType>().HasData(
-            new ContactType
+        var contactTypes = Enum.GetValues(typeof(ContactTypeCode))
+            .Cast<ContactTypeCode>()
+            .Where(code => code != ContactTypeCode.NotSupported)
+            .Select(code => new ContactType
             {
-                Id = (long)ContactTypeCode.Email,
-                Name = "Email",
-                Code = ContactTypeCode.Email,
-                Description = "Email address",
+                Id = (long)code,
+                Code = code,
+                Name = code.ToString(),
+                Description = code.ToString(),
                 CreatedAt = now,
                 UpdatedAt = now
-            },
-            new ContactType
-            {
-                Id = (long)ContactTypeCode.Phone,
-                Name = "Phone",
-                Code = ContactTypeCode.Phone,
-                Description = "Phone number",
-                CreatedAt = now,
-                UpdatedAt = now
-            }
-        );
+            })
+            .ToList();
 
-        var statuses = Enum.GetValues(typeof(DeliveryStatusCode))
+        modelBuilder.Entity<ContactType>().HasData(contactTypes);
+    
+
+    var statuses = Enum.GetValues(typeof(DeliveryStatusCode))
             .Cast<DeliveryStatusCode>()
             .Select(code => new DeliveryStatus
             {

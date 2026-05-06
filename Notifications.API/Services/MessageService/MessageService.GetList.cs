@@ -1,34 +1,41 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Notifications.API.DTO.Responses;
 using Notifications.API.DTO.Responses.Components;
+using Notifications.API.Entities;
 
 namespace Notifications.API.Service.MessageService;
 
 public partial class MessageService
 {
-    public async Task<IEnumerable<MessageResponse>> GetListAsync(int? page, int? pageSize, string? sortBy, bool desc, CancellationToken cancellationToken)
+    public async Task<PagedResult<MessageResponse>> GetListAsync(
+        int? page,
+        int? pageSize,
+        string? sortBy,
+        bool desc,
+        CancellationToken cancellationToken)
     {
         var query = db.Messages.AsQueryable();
-        var pageNumber = Math.Max(page ?? 1, 1);
-        var size = Math.Max(pageSize ?? 10, 1);
 
+        // сортировка
         query = sortBy switch
         {
             "createdAt" => desc
-                ? query.OrderByDescending(message => message.CreatedAt)
-                : query.OrderBy(message => message.CreatedAt),
+                ? query.OrderByDescending(x => x.CreatedAt)
+                : query.OrderBy(x => x.CreatedAt),
 
             _ => query.OrderByDescending(x => x.CreatedAt)
         };
 
+        var totalCount = await query.CountAsync(cancellationToken);
+
         if (page.HasValue && pageSize.HasValue)
         {
             query = query
-                .Skip((pageNumber - 1) * size)
-                .Take(size);
+                .Skip((page.Value - 1) * pageSize.Value)
+                .Take(pageSize.Value);
         }
 
-        return await query
+        var items = await query
             .Select(message => new MessageResponse
             {
                 Id = message.Id,
@@ -37,7 +44,7 @@ public partial class MessageService
                 StorageTimeAfterSendingInHours = message.StorageTimeAfterSendingInHours,
                 CreatedAt = message.CreatedAt,
                 UpdatedAt = message.UpdatedAt,
-                Recipients = message.Recipients.Select(recipient => new RecipientData
+                Recipients = message.Recipients.Select(recipient => new RecipientResponseData
                 {
                     Id = recipient.Id,
                     ContactData = recipient.ContactData,
@@ -46,5 +53,13 @@ public partial class MessageService
                 })
             })
             .ToListAsync(cancellationToken);
+
+        return new PagedResult<MessageResponse>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page ?? 1,
+            PageSize = pageSize ?? totalCount
+        };
     }
 }

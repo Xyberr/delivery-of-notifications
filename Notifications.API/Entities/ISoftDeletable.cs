@@ -1,7 +1,11 @@
-﻿namespace Notifications.API.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Notifications.API.Entities;
 
 public interface ISoftDeletable
 {
-    bool IsDeleted { get; set; }
-    DateTime? DeletedAt { get; set; }
+    public bool IsDeleted { get; set; }
+    
+    [Column(TypeName = "timestamp with time zone")]
+    public DateTime? DeletedAt { get; set; }
 }

@@ -12,5 +12,5 @@ public class MessageResponse
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
-    public IEnumerable<RecipientData> Recipients { get; set; } = [];
+    public IEnumerable<RecipientResponseData> Recipients { get; set; } = [];
 }

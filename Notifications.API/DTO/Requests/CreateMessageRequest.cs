@@ -9,5 +9,5 @@ public class CreateMessageRequest
 
     public int StorageTimeAfterSendingInHours { get; set; }
 
-    public List<RecipientRequest> Recipients { get; set; } = new();
+    public List<RecipientRequestData> Recipients { get; set; } = new();
 }

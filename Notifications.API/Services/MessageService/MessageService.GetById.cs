@@ -18,7 +18,7 @@ public partial class MessageService
                 StorageTimeAfterSendingInHours = message.StorageTimeAfterSendingInHours,
                 CreatedAt = message.CreatedAt,
                 UpdatedAt = message.UpdatedAt,
-                Recipients = message.Recipients.Select(recipient => new RecipientData
+                Recipients = message.Recipients.Select(recipient => new RecipientResponseData
                 {
                     Id = recipient.Id,
                     ContactData = recipient.ContactData,

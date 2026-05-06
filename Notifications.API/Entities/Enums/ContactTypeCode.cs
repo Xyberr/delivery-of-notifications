@@ -2,7 +2,9 @@
 
 public enum ContactTypeCode
 {
-    Email = 0,
-    Phone = 1,
-    Telegram = 2
+    Email = 1,
+    Phone = 2,
+    Telegram = 3,
+
+    NotSupported = 9999
 }

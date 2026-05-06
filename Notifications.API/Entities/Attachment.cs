@@ -1,6 +1,6 @@
 ﻿namespace Notifications.API.Entities;
 
-public class MessageAttachment : BaseEntity
+public class Attachment : BaseEntity
 {
     public string FileName { get; set; } = null!;
     public string StoragePath { get; set; } = null!;
