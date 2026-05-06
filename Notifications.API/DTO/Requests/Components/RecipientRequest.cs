@@ -1,6 +1,6 @@
-﻿namespace Notifications.API.DTO;
+﻿namespace Notifications.API.DTO.Components;
 
-public class RecipientDto
+public class RecipientRequest
 {
     public long ContactTypeId { get; set; }
     public string ContactData { get; set; } = null!;

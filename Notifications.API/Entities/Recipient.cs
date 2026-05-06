@@ -1,6 +1,6 @@
 ﻿namespace Notifications.API.Entities;
 
-public class MessageRecipient : BaseEntity
+public class Recipient : BaseEntity, ISoftDeletable
 {
     public long MessageId { get; set; }
     public Message Message { get; set; } = null!;
@@ -16,5 +16,6 @@ public class MessageRecipient : BaseEntity
     public int RetryCount { get; set; }
     public DateTime? NextRetry { get; set; }
 
+    public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
 }

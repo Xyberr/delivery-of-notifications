@@ -12,7 +12,7 @@ namespace Notifications.API.Service.AuthService;
 
 public class AuthService(AppDbContext db) : IAuthService
 {
-    public async Task<string> CreateApiKey(string owner, string desc, string createdBy)
+    public async Task<string> CreateApiKeyAsync(string owner, string desc, string createdBy, CancellationToken cancellationToken)
     {
         var key = GenerateKey();
 
@@ -27,14 +27,14 @@ public class AuthService(AppDbContext db) : IAuthService
         };
 
         db.ApiKeys.Add(entity);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
 
         return key;
     }
 
-    public async Task<AuthResponse?> LoginAsync(HttpContext context, string apiKey)
+    public async Task<AuthResponse?> LoginAsync(HttpContext context, string apiKey, CancellationToken cancellationToken)
     {
-        var entity = await GetApiKeyAsync(apiKey);
+        var entity = await GetApiKeyAsync(apiKey, cancellationToken);
 
         if (entity == null)
             return null;
@@ -47,18 +47,11 @@ public class AuthService(AppDbContext db) : IAuthService
         return MapToResponse(entity);
     }
     
-    private async Task<ApiKey?> GetApiKeyAsync(string key)
+    private async Task<ApiKey?> GetApiKeyAsync(string key, CancellationToken cancellationToken)
     {
-        try
-        {
-            return await db.ApiKeys
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Key == key);
-        }
-        catch
-        {
-            return null;
-        }
+        return await db.ApiKeys
+            .AsNoTracking()
+            .FirstOrDefaultAsync(apiKey => apiKey.Key == key, cancellationToken);
     }
 
     private AuthResponse MapToResponse(ApiKey entity)
@@ -82,24 +75,21 @@ public class AuthService(AppDbContext db) : IAuthService
             new("owner", entity.Owner),
             new("description", entity.Desc ?? ""),
             new("createdAt", entity.CreatedAt.ToString("O")),
-            new("updatedAt", entity.UpdatedAt.ToString("O"))
+            new("updatedAt", entity.UpdatedAt.ToString("O")),
+            new("createdBy", entity.CreatedBy ?? "")
         };
     }
 
     private ClaimsPrincipal CreatePrincipal(IEnumerable<Claim> claims)
     {
-        var identity = new ClaimsIdentity(
-            claims,
-            CookieAuthenticationDefaults.AuthenticationScheme);
-
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        
         return new ClaimsPrincipal(identity);
     }
 
     private async Task SignInAsync(HttpContext context, ClaimsPrincipal principal)
     {
-        await context.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal);
+        await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
     }
 
     private string GenerateKey(int length = 32)

@@ -1,4 +1,6 @@
-﻿namespace Notifications.API.DTO.Requests;
+﻿using Notifications.API.DTO.Components;
+
+namespace Notifications.API.DTO.Requests;
 
 public class CreateMessageRequest
 {
@@ -7,5 +9,5 @@ public class CreateMessageRequest
 
     public int StorageTimeAfterSendingInHours { get; set; }
 
-    public List<RecipientDto> Recipients { get; set; } = new();
+    public List<RecipientRequest> Recipients { get; set; } = new();
 }

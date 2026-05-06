@@ -13,26 +13,20 @@ public class MessagesController(IMessageService service) : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType(typeof(CreateMessageResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create(CreateMessageRequest request)
+    public async Task<IActionResult> Create(CreateMessageRequest request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await service.CreateAsync(request);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+        var result = await service.CreateAsync(request, cancellationToken);
+
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+
+        return Ok(result.Data);
     }
 
     [HttpGet("{id:long}")]
-    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get(long id)
+    public async Task<IActionResult> Get(long id, CancellationToken cancellationToken)
     {
-        var result = await service.GetByIdAsync(id);
+        var result = await service.GetByIdAsync(id, cancellationToken);
 
         if (result == null)
             return NotFound();
@@ -41,19 +35,22 @@ public class MessagesController(IMessageService service) : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(List<MessageResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(int page = 1, int pageSize = 10)
+    public async Task<IActionResult> GetList(int? page, int? pageSize, string? sortBy, bool desc = true, CancellationToken cancellationToken = default)
     {
-        var result = await service.GetAllAsync(page, pageSize);
+        var result = await service.GetListAsync(
+            page,
+            pageSize,
+            sortBy,
+            desc,
+            cancellationToken);
+
         return Ok(result);
     }
 
     [HttpDelete("{id:long}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id)
+    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
     {
-        var deleted = await service.DeleteAsync(id);
+        var deleted = await service.DeleteAsync(id, cancellationToken);
 
         if (!deleted)
             return NotFound();

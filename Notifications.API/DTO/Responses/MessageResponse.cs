@@ -1,4 +1,6 @@
-﻿namespace Notifications.API.DTO.Responses;
+﻿using Notifications.API.DTO.Responses.Components;
+
+namespace Notifications.API.DTO.Responses;
 
 public class MessageResponse
 {
@@ -10,5 +12,5 @@ public class MessageResponse
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
-    public List<RecipientResponse> Recipients { get; set; } = [];
+    public IEnumerable<RecipientData> Recipients { get; set; } = [];
 }

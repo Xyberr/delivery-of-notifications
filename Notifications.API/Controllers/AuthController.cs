@@ -14,21 +14,26 @@ public class AuthController(IAuthService auth) : ControllerBase
 {
     [HttpPost("login")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login(
+        [FromBody] LoginRequest request,
+        CancellationToken cancellationToken)
     {
-        var result = await auth.LoginAsync(HttpContext, request.ApiKey);
+        var result = await auth.LoginAsync(HttpContext, request.ApiKey, cancellationToken);
 
         if (result == null)
             return Unauthorized();
 
         return Ok(result);
     }
-    
-    [HttpPost("api-key")] // ТЕСТ, УДАЛИТЬ
+
+    [HttpPost("api-key")] // ТЕСТ УДАЛИТЬ
     [ProducesResponseType(typeof(ApiKeyResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> CreateApiKey([FromBody]string owner, string desc, string createBy)
+    public async Task<IActionResult> CreateApiKey(
+        [FromBody] CreateApiKeyRequest request,
+        CancellationToken cancellationToken)
     {
-        var key = await auth.CreateApiKey(owner, desc, createBy);
+        var key = await auth.CreateApiKeyAsync(request.Owner, request.Desc, request.CreatedBy, cancellationToken);
+
         return Ok(new ApiKeyResponse
         {
             Key = key
@@ -37,15 +42,12 @@ public class AuthController(IAuthService auth) : ControllerBase
 
     [Authorize]
     [HttpGet("secure")]
-    [ProducesResponseType(typeof(SecureResponse), StatusCodes.Status200OK)]
     public IActionResult Secure()
     {
-        var owner = User.FindFirst("owner")?.Value;
-
         return Ok(new SecureResponse
         {
             Message = "You are authorized",
-            Owner = owner,
+            Owner = User.FindFirst("owner")?.Value,
             Desc = User.FindFirst("description")?.Value,
             CreatedAt = User.FindFirst("createdAt")?.Value,
             UpdatedAt = User.FindFirst("updatedAt")?.Value,
@@ -55,7 +57,6 @@ public class AuthController(IAuthService auth) : ControllerBase
 
     [Authorize]
     [HttpPost("logout")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync();
