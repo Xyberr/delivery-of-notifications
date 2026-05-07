@@ -28,7 +28,7 @@ public partial class AuthService
     private async Task SignInAsync(HttpContext context, ClaimsPrincipal principal)
     {
         await context.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
+            CookieAuthenticationDefaults.AuthenticationScheme, 
             principal);
     }
 }

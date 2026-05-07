@@ -24,8 +24,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             {
                 Id = (long)code,
                 Code = code,
-                Name = code.ToString(),
-                Description = code.ToString(),
+                Name = code.GetDisplayName(),
+                Description = code.GetDisplayDescription() ?? string.Empty,
                 CreatedAt = now,
                 UpdatedAt = now
             })

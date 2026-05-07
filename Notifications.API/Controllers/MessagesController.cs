@@ -38,19 +38,15 @@ public class MessagesController(IMessageService service) : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetList(int? page, int? pageSize, string? sortBy, bool desc = true, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetList(CancellationToken cancellationToken)
     {
-        var result = await service.GetListAsync(
-            page,
-            pageSize,
-            sortBy,
-            desc,
-            cancellationToken);
+        var result = await service.GetListAsync(cancellationToken);
 
         return Ok(result);
     }
 
     [HttpDelete("{id:long}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
     {
         var deleted = await service.DeleteAsync(id, cancellationToken);
