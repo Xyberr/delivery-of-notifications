@@ -72,8 +72,4 @@ const onLogin = async () => {
   width: fit-content;
   gap: 16px;
 }
-
-.error {
-  color: #fc7b86;
-}
 </style>

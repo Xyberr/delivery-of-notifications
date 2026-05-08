@@ -43,4 +43,8 @@ const authStore = useAuthStore()
   flex: 1;
   display: flex;
 }
+
+.error {
+  color: #fc7b86;
+}
 </style>

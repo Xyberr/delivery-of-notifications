@@ -1,16 +1,51 @@
 <script setup lang="ts">
-import { Button, InputText, Panel, Textarea } from 'primevue';
+import { Button, InputText, Panel, Textarea, useToast } from 'primevue';
 import { ref } from 'vue';
+import * as z from "zod"; 
+
+const toast = useToast()
 
 const email = ref('')
 const subject = ref('')
 const message = ref('')
 
+const parseError = ref<null | string>(null)
 // todo: 
 // show toast on success
 // send user to jobs page or update jobs list on success
 
-const sendMsg = () => {}
+const MsgSchema = z.object({
+    email: z
+        .email("Некорректный email")
+        .trim(),
+    subject: z
+        .string()
+        .trim()
+        .nonempty("Введите тему сообщения"),
+    message: z
+        .string()
+        .nonempty("Введите текст сообщения")
+})
+
+const sendMsg = () => {
+    parseError.value = null
+    const result = MsgSchema.safeParse({ 
+        email: email.value, 
+        subject: subject.value, 
+        message: message.value 
+    })
+
+    if (!result.success) {
+        parseError.value = result.error.issues[0]?.message as string ?? 'Ошибка валидации'
+    } else {
+        try {
+            console.log('test')
+        } catch (error) {
+            toast.add({ severity: 'error', summary: 'Неизвестная ошибка', detail: `${error}` });
+        }
+    }
+}
+
 </script>
 
 <template>
@@ -20,6 +55,8 @@ const sendMsg = () => {}
             <InputText placeholder="Тема" v-model="subject" />
             <Textarea autoResize placeholder="Текст сообщения" v-model="message" />
     
+            <p v-if="parseError" class="error">{{ parseError }}</p>
+
             <Button label="Отправить" class="sendButton" @click="sendMsg"/>
         </form>
     </Panel>
