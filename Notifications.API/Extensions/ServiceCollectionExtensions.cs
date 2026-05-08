@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Notifications.API.Persistence;
 using Notifications.API.Service.AuthService;
+using Notifications.API.Service.MessageService;
 
 namespace Notifications.API.Extensions;
 
@@ -21,6 +22,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddAppServices(this IServiceCollection services)
     {
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IMessageService, MessageService>();
         return services;
     }
 
