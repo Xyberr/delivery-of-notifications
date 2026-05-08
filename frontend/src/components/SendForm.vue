@@ -12,7 +12,7 @@ const subject = ref('Тема')
 const message = ref('Текст')
 
 const parseError = ref<null | string>(null)
-    
+
 // todo: 
 // send user to jobs page or update jobs list on success
 
@@ -85,9 +85,9 @@ const sendMsg = async () => {
 <template>
     <Panel header="Отправить сообщение">
         <form class="sendForm" @submit.prevent="sendMsg">
-            <InputText inputmode="email" placeholder="Email получателя" v-model="email" />
-            <InputText placeholder="Тема" v-model="subject" />
-            <Textarea autoResize placeholder="Текст сообщения" v-model="message" />
+            <InputText :disabled="isMsgSending" inputmode="email" placeholder="Email получателя" v-model="email" />
+            <InputText :disabled="isMsgSending" placeholder="Тема" v-model="subject" />
+            <Textarea :disabled="isMsgSending" autoResize placeholder="Текст сообщения" v-model="message" />
     
             <p v-if="parseError" class="error">{{ parseError }}</p>
 
