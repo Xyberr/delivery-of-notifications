@@ -16,8 +16,36 @@ export type AuthResponse = {
   updatedAt?: string
 }
 
+export type CreateApiKeyRequest = {
+  owner?: string | null
+  desc?: string | null
+  createdBy?: string | null
+}
+
+export type CreateMessageRequest = {
+  subject?: string | null
+  messageBody?: string | null
+  storageTimeAfterSendingInHours?: number
+  recipients?: Array<RecipientRequestData> | null
+}
+
+export type CreateMessageResponse = {
+  messageId?: number
+  recipientsCount?: number
+}
+
 export type LoginRequest = {
   apiKey?: string | null
+}
+
+export type MessageResponse = {
+  id?: number
+  subject?: string | null
+  messageBody?: string | null
+  storageTimeAfterSendingInHours?: number
+  createdAt?: string
+  updatedAt?: string
+  recipients?: Array<RecipientResponseData> | null
 }
 
 export type ProblemDetails = {
@@ -29,13 +57,16 @@ export type ProblemDetails = {
   [key: string]: unknown
 }
 
-export type SecureResponse = {
-  message?: string | null
-  owner?: string | null
-  desc?: string | null
-  createdAt?: string | null
-  updatedAt?: string | null
-  createdBy?: string | null
+export type RecipientRequestData = {
+  contactTypeId?: number
+  contactData?: string | null
+}
+
+export type RecipientResponseData = {
+  id?: number
+  contactTypeId?: number
+  contactData?: string | null
+  deliveryStatusId?: number
 }
 
 export type PostAuthLoginData = {
@@ -64,12 +95,9 @@ export type PostAuthLoginResponses = {
 export type PostAuthLoginResponse = PostAuthLoginResponses[keyof PostAuthLoginResponses]
 
 export type PostAuthApiKeyData = {
-  body?: string
+  body?: CreateApiKeyRequest
   path?: never
-  query?: {
-    desc?: string
-    createBy?: string
-  }
+  query?: never
   url: '/auth/api-key'
 }
 
@@ -107,15 +135,6 @@ export type GetAuthSecureErrors = {
 
 export type GetAuthSecureError = GetAuthSecureErrors[keyof GetAuthSecureErrors]
 
-export type GetAuthSecureResponses = {
-  /**
-   * Success
-   */
-  200: SecureResponse
-}
-
-export type GetAuthSecureResponse = GetAuthSecureResponses[keyof GetAuthSecureResponses]
-
 export type PostAuthLogoutData = {
   body?: never
   path?: never
@@ -140,3 +159,108 @@ export type PostAuthLogoutResponses = {
 }
 
 export type PostAuthLogoutResponse = PostAuthLogoutResponses[keyof PostAuthLogoutResponses]
+
+export type GetMessagesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/messages'
+}
+
+export type GetMessagesErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails
+}
+
+export type GetMessagesError = GetMessagesErrors[keyof GetMessagesErrors]
+
+export type GetMessagesResponses = {
+  /**
+   * Success
+   */
+  200: Array<MessageResponse>
+}
+
+export type GetMessagesResponse = GetMessagesResponses[keyof GetMessagesResponses]
+
+export type PostMessagesData = {
+  body?: CreateMessageRequest
+  path?: never
+  query?: never
+  url: '/messages'
+}
+
+export type PostMessagesErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails
+}
+
+export type PostMessagesError = PostMessagesErrors[keyof PostMessagesErrors]
+
+export type PostMessagesResponses = {
+  /**
+   * Success
+   */
+  200: CreateMessageResponse
+}
+
+export type PostMessagesResponse = PostMessagesResponses[keyof PostMessagesResponses]
+
+export type DeleteMessagesByIdData = {
+  body?: never
+  path: {
+    id: number
+  }
+  query?: never
+  url: '/messages/{id}'
+}
+
+export type DeleteMessagesByIdErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails
+}
+
+export type DeleteMessagesByIdError = DeleteMessagesByIdErrors[keyof DeleteMessagesByIdErrors]
+
+export type DeleteMessagesByIdResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type DeleteMessagesByIdResponse =
+  DeleteMessagesByIdResponses[keyof DeleteMessagesByIdResponses]
+
+export type GetMessagesByIdData = {
+  body?: never
+  path: {
+    id: number
+  }
+  query?: never
+  url: '/messages/{id}'
+}
+
+export type GetMessagesByIdErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails
+}
+
+export type GetMessagesByIdError = GetMessagesByIdErrors[keyof GetMessagesByIdErrors]
+
+export type GetMessagesByIdResponses = {
+  /**
+   * Success
+   */
+  200: MessageResponse
+}
+
+export type GetMessagesByIdResponse = GetMessagesByIdResponses[keyof GetMessagesByIdResponses]

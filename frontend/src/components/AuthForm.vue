@@ -28,7 +28,7 @@ const onLogin = async () => {
   } else {
     try {
       await authStore.loginAsync(0, apiKey.value)
-      router.push('/private')
+      router.push('/send')
     } catch (error) {
       toast.add({ severity: 'error', summary: 'Неизвестная ошибка', detail: `${error}` });
     }
@@ -71,9 +71,5 @@ const onLogin = async () => {
   flex-direction: column;
   width: fit-content;
   gap: 16px;
-}
-
-.error {
-  color: #fc7b86;
 }
 </style>
