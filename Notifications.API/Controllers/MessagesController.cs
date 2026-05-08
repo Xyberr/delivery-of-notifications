@@ -37,8 +37,7 @@ public class MessagesController(IMessageService service) : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetList(CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ICollection<MessageResponse>), StatusCodes.Status200OK)]    public async Task<IActionResult> GetList(CancellationToken cancellationToken)
     {
         var result = await service.GetListAsync(cancellationToken);
 
