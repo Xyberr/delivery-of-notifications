@@ -1,17 +1,19 @@
 <script setup lang="ts">
+import { MessagesService, type CreateMessageRequest } from '@/heyapi';
+import { useAsyncState } from '@vueuse/core';
 import { Button, InputText, Panel, Textarea, useToast } from 'primevue';
 import { ref } from 'vue';
 import * as z from "zod"; 
 
 const toast = useToast()
 
-const email = ref('')
-const subject = ref('')
-const message = ref('')
+const email = ref('mail123@mail.ru')
+const subject = ref('Тема')
+const message = ref('Текст')
 
 const parseError = ref<null | string>(null)
+    
 // todo: 
-// show toast on success
 // send user to jobs page or update jobs list on success
 
 const MsgSchema = z.object({
@@ -27,19 +29,51 @@ const MsgSchema = z.object({
         .nonempty("Введите текст сообщения")
 })
 
-const sendMsg = () => {
+const { isLoading: isMsgSending, execute: sendMsgAsync } = useAsyncState(
+    async (msg: CreateMessageRequest) => {
+        return MessagesService.postMessages({
+            body: msg,
+        })
+    },
+    null,
+    {
+        immediate: false,
+        resetOnExecute: false,
+        throwError: true,
+        onSuccess() {
+            toast.add({ 
+                severity: 'success', 
+                summary: 'Успех', 
+                detail: 'Сообщение успешно зарегистрировано', 
+                life: 3000 
+            })
+        }
+    },
+)
+
+const sendMsg = async () => {
     parseError.value = null
-    const result = MsgSchema.safeParse({ 
-        email: email.value, 
-        subject: subject.value, 
-        message: message.value 
+    const result = MsgSchema.safeParse({
+        email: email.value,
+        subject: subject.value,
+        message: message.value
     })
 
     if (!result.success) {
         parseError.value = result.error.issues[0]?.message as string ?? 'Ошибка валидации'
     } else {
         try {
-            console.log('test')
+            await sendMsgAsync(0, {
+                subject: subject.value,
+                storageTimeAfterSendingInHours: 24,
+                messageBody: message.value,
+                recipients: [
+                    {
+                        contactTypeId: 1,
+                        contactData: email.value
+                    }
+                ]
+            })
         } catch (error) {
             toast.add({ severity: 'error', summary: 'Неизвестная ошибка', detail: `${error}` });
         }
@@ -50,14 +84,19 @@ const sendMsg = () => {
 
 <template>
     <Panel header="Отправить сообщение">
-        <form class="sendForm">
+        <form class="sendForm" @submit.prevent="sendMsg">
             <InputText inputmode="email" placeholder="Email получателя" v-model="email" />
             <InputText placeholder="Тема" v-model="subject" />
             <Textarea autoResize placeholder="Текст сообщения" v-model="message" />
     
             <p v-if="parseError" class="error">{{ parseError }}</p>
 
-            <Button label="Отправить" class="sendButton" @click="sendMsg"/>
+            <Button 
+                label="Отправить" 
+                class="sendButton" 
+                type="submit" 
+                :disabled="isMsgSending"
+            />
         </form>
     </Panel>
 </template>
