@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { MessagesService, type CreateMessageRequest } from '@/heyapi';
 import { useMessagesStore } from '@/stores/messages';
-import { useAsyncState } from '@vueuse/core';
 import { Button, InputText, Panel, Textarea, useToast } from 'primevue';
 import { ref } from 'vue';
 import * as z from "zod"; 

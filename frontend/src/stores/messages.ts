@@ -14,11 +14,11 @@ export const useMessagesStore = createGlobalState(() => {
             immediate: false,
             resetOnExecute: false,
             throwError: true,
-            onSuccess() {
+            onSuccess(data) {
                 showToast({
                     severity: 'success',
-                    summary: 'Успех',
-                    detail: 'Сообщение успешно зарегистрировано',
+                    summary: 'Сообщение зарегистрировано',
+                    detail: `ID: ${data?.data?.messageId}`,
                     life: 3000
                 })
             }
