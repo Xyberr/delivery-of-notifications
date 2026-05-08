@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { MessagesService, type CreateMessageRequest } from '@/heyapi';
+import { useMessagesStore } from '@/stores/messages';
 import { useAsyncState } from '@vueuse/core';
 import { Button, InputText, Panel, Textarea, useToast } from 'primevue';
 import { ref } from 'vue';
 import * as z from "zod"; 
 
 const toast = useToast()
+const messagesStore = useMessagesStore() 
 
 const email = ref('mail123@mail.ru')
 const subject = ref('Тема')
@@ -29,28 +31,6 @@ const MsgSchema = z.object({
         .nonempty("Введите текст сообщения")
 })
 
-const { isLoading: isMsgSending, execute: sendMsgAsync } = useAsyncState(
-    async (msg: CreateMessageRequest) => {
-        return MessagesService.postMessages({
-            body: msg,
-        })
-    },
-    null,
-    {
-        immediate: false,
-        resetOnExecute: false,
-        throwError: true,
-        onSuccess() {
-            toast.add({ 
-                severity: 'success', 
-                summary: 'Успех', 
-                detail: 'Сообщение успешно зарегистрировано', 
-                life: 3000 
-            })
-        }
-    },
-)
-
 const sendMsg = async () => {
     parseError.value = null
     const result = MsgSchema.safeParse({
@@ -63,7 +43,7 @@ const sendMsg = async () => {
         parseError.value = result.error.issues[0]?.message as string ?? 'Ошибка валидации'
     } else {
         try {
-            await sendMsgAsync(0, {
+            await messagesStore.sendMsgAsync(0, {
                 subject: subject.value,
                 storageTimeAfterSendingInHours: 24,
                 messageBody: message.value,
@@ -85,9 +65,9 @@ const sendMsg = async () => {
 <template>
     <Panel header="Отправить сообщение">
         <form class="sendForm" @submit.prevent="sendMsg">
-            <InputText :disabled="isMsgSending" inputmode="email" placeholder="Email получателя" v-model="email" />
-            <InputText :disabled="isMsgSending" placeholder="Тема" v-model="subject" />
-            <Textarea :disabled="isMsgSending" autoResize placeholder="Текст сообщения" v-model="message" />
+            <InputText :disabled="messagesStore.isMsgSending.value" inputmode="email" placeholder="Email получателя" v-model="email" />
+            <InputText :disabled="messagesStore.isMsgSending.value" placeholder="Тема" v-model="subject" />
+            <Textarea :disabled="messagesStore.isMsgSending.value" autoResize placeholder="Текст сообщения" v-model="message" />
     
             <p v-if="parseError" class="error">{{ parseError }}</p>
 
@@ -95,7 +75,7 @@ const sendMsg = async () => {
                 label="Отправить" 
                 class="sendButton" 
                 type="submit" 
-                :disabled="isMsgSending"
+                :disabled="messagesStore.isMsgSending.value"
             />
         </form>
     </Panel>
