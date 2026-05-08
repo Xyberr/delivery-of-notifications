@@ -3,9 +3,17 @@
 import type { Client, Options as Options2, TDataShape } from './client'
 import { client } from './client.gen'
 import type {
+  DeleteMessagesByIdData,
+  DeleteMessagesByIdErrors,
+  DeleteMessagesByIdResponses,
   GetAuthSecureData,
   GetAuthSecureErrors,
-  GetAuthSecureResponses,
+  GetMessagesByIdData,
+  GetMessagesByIdErrors,
+  GetMessagesByIdResponses,
+  GetMessagesData,
+  GetMessagesErrors,
+  GetMessagesResponses,
   PostAuthApiKeyData,
   PostAuthApiKeyErrors,
   PostAuthApiKeyResponses,
@@ -15,6 +23,9 @@ import type {
   PostAuthLogoutData,
   PostAuthLogoutErrors,
   PostAuthLogoutResponses,
+  PostMessagesData,
+  PostMessagesErrors,
+  PostMessagesResponses,
 } from './types.gen'
 
 export type Options<
@@ -73,11 +84,10 @@ export class AuthService {
   public static getAuthSecure<ThrowOnError extends boolean = false>(
     options?: Options<GetAuthSecureData, ThrowOnError>,
   ) {
-    return (options?.client ?? client).get<
-      GetAuthSecureResponses,
-      GetAuthSecureErrors,
-      ThrowOnError
-    >({ url: '/auth/secure', ...options })
+    return (options?.client ?? client).get<unknown, GetAuthSecureErrors, ThrowOnError>({
+      url: '/auth/secure',
+      ...options,
+    })
   }
 
   public static postAuthLogout<ThrowOnError extends boolean = false>(
@@ -88,5 +98,53 @@ export class AuthService {
       PostAuthLogoutErrors,
       ThrowOnError
     >({ url: '/auth/logout', ...options })
+  }
+}
+
+export class MessagesService {
+  public static getMessages<ThrowOnError extends boolean = false>(
+    options?: Options<GetMessagesData, ThrowOnError>,
+  ) {
+    return (options?.client ?? client).get<GetMessagesResponses, GetMessagesErrors, ThrowOnError>({
+      url: '/messages',
+      ...options,
+    })
+  }
+
+  public static postMessages<ThrowOnError extends boolean = false>(
+    options?: Options<PostMessagesData, ThrowOnError>,
+  ) {
+    return (options?.client ?? client).post<
+      PostMessagesResponses,
+      PostMessagesErrors,
+      ThrowOnError
+    >({
+      url: '/messages',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+    })
+  }
+
+  public static deleteMessagesById<ThrowOnError extends boolean = false>(
+    options: Options<DeleteMessagesByIdData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).delete<
+      DeleteMessagesByIdResponses,
+      DeleteMessagesByIdErrors,
+      ThrowOnError
+    >({ url: '/messages/{id}', ...options })
+  }
+
+  public static getMessagesById<ThrowOnError extends boolean = false>(
+    options: Options<GetMessagesByIdData, ThrowOnError>,
+  ) {
+    return (options.client ?? client).get<
+      GetMessagesByIdResponses,
+      GetMessagesByIdErrors,
+      ThrowOnError
+    >({ url: '/messages/{id}', ...options })
   }
 }
