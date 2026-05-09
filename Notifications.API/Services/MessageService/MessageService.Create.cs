@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Notifications.API.Contracts.Notifications;
 using Notifications.API.DTO.Requests;
 using Notifications.API.DTO.Responses;
 using Notifications.API.Entities;
@@ -18,7 +19,7 @@ public partial class MessageService
         var now = DateTime.UtcNow;
 
         var pendingStatusId = await db.DeliveryStatuses
-            .Where(status => status.Code == DeliveryStatusCode.Pending)
+            .Where(status => status.Code == DeliveryStatusCode.Queued)
             .Select(status => status.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -63,6 +64,13 @@ public partial class MessageService
         db.Messages.Add(message);
         await db.SaveChangesAsync(cancellationToken);
 
+        await publish.Publish(
+            new SendNotificationMessage
+            {
+                MessageId = message.Id
+            },
+            cancellationToken);
+        
         return Result<CreateMessageResponse>.Success(new CreateMessageResponse
         {
             MessageId = message.Id,
