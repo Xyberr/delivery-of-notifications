@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Notifications.API.Consumers;
 using Notifications.API.Entities;
 using Notifications.API.Extensions;
+using Notifications.API.Services.BackgroundServices.NotificationRetryBackgroundService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,8 @@ builder.Services
     .Bind(builder.Configuration.GetSection(RabbitMqConfig.SectionName))
     .ValidateDataAnnotations()
     .ValidateOnStart();
+
+builder.Services.AddHostedService<NotificationRetryBackgroundService>();
 
 builder.Services.AddMassTransit(configurator =>
 {
@@ -33,13 +36,6 @@ builder.Services.AddMassTransit(configurator =>
                 host.Username(settings.Username);
                 host.Password(settings.Password);
             });
-
-        cfg.UseMessageRetry(retry =>
-        {
-            retry.Interval(
-                3,
-                TimeSpan.FromSeconds(5));
-        });
 
         cfg.ConfigureEndpoints(context);
     });

@@ -2,5 +2,5 @@
 
 public class SendNotificationMessage
 {
-    public long MessageId { get; set; }
+    public long RecipientId { get; set; }
 }

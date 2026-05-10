@@ -14,45 +14,46 @@ public class NotificationConsumer(
     public async Task Consume(
         ConsumeContext<SendNotificationMessage> context)
     {
-        var message = await db.Messages
-            .Include(message => message.Recipients)
+        var recipient = await db.MessageRecipients
             .FirstOrDefaultAsync(
-                message => message.Id == context.Message.MessageId);
+                recipient =>
+                    recipient.Id == context.Message.RecipientId,
+                context.CancellationToken);
 
-        if (message == null)
+        if (recipient == null)
         {
             logger.LogWarning(
-                "Сообщение не найдено. MessageId: {MessageId}",
-                context.Message.MessageId);
+                "Получатель не найден. RecipientId: {RecipientId}",
+                context.Message.RecipientId);
 
             return;
         }
 
-        foreach (var recipient in message.Recipients)
+        try
         {
-            try
-            {
-                logger.LogInformation(
-                    "Отправка сообщения в {Recipient}",
-                    recipient.ContactData);
+            logger.LogInformation(
+                "Отправка сообщения получателю {Recipient}",
+                recipient.ContactData);
 
-                recipient.DeliveryStatusId =
-                    (long)DeliveryStatusCode.Delivered;
-            }
-            catch (Exception exception)
-            {
-                recipient.RetryCount++;
+            recipient.DeliveryStatusId =
+                (long)DeliveryStatusCode.Delivered;
+        }
+        catch (Exception exception)
+        {
+            recipient.RetryCount++;
 
-                recipient.DeliveryStatusId =
-                    (long)DeliveryStatusCode.Failed;
+            recipient.NextRetry =
+                DateTime.UtcNow.AddMinutes(5);
 
-                logger.LogError(
-                    exception,
-                    "Не удалось отправить уведомление по адресу {Recipient}",
-                    recipient.ContactData);
+            recipient.DeliveryStatusId =
+                (long)DeliveryStatusCode.Failed;
 
-                throw;
-            }
+            logger.LogError(
+                exception,
+                "Ошибка отправки уведомления {Recipient}",
+                recipient.ContactData);
+
+            throw;
         }
 
         await db.SaveChangesAsync(context.CancellationToken);

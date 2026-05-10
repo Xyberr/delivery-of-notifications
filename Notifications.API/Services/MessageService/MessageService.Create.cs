@@ -15,19 +15,12 @@ public partial class MessageService
         CancellationToken cancellationToken)
     {
         if (request.Recipients is not { Count: >= 1 })
+        {
             return Result<CreateMessageResponse>
                 .Failure("Список получателей не может быть пустым");
+        }
 
         var now = DateTime.UtcNow;
-
-        var pendingStatusId = await db.DeliveryStatuses
-            .Where(status => status.Code == DeliveryStatusCode.Pending)
-            .Select(status => status.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (pendingStatusId == default)
-            return Result<CreateMessageResponse>
-                .Failure("Статус Pending не найден");
 
         var contactTypeIds = request.Recipients
             .Select(recipient => recipient.ContactTypeId)
@@ -46,14 +39,16 @@ public partial class MessageService
         if (invalidIds.Count != 0)
         {
             return Result<CreateMessageResponse>
-                .Failure($"Неподдерживаемые ContactTypeId: {string.Join(", ", invalidIds)}");
+                .Failure(
+                    $"Неподдерживаемые ContactTypeId: {string.Join(", ", invalidIds)}");
         }
 
         var message = new Message
         {
             Subject = request.Subject,
             MessageBody = request.MessageBody,
-            StorageTimeAfterSendingInHours = request.StorageTimeAfterSendingInHours,
+            StorageTimeAfterSendingInHours =
+                request.StorageTimeAfterSendingInHours,
             CreatedAt = now,
             UpdatedAt = now,
             Recipients = request.Recipients
@@ -61,7 +56,8 @@ public partial class MessageService
                 {
                     ContactTypeId = recipient.ContactTypeId,
                     ContactData = recipient.ContactData,
-                    DeliveryStatusId = pendingStatusId,
+                    DeliveryStatusId =
+                        (long)DeliveryStatusCode.Queued,
                     RetryCount = 0,
                     CreatedAt = now,
                     UpdatedAt = now
@@ -75,16 +71,21 @@ public partial class MessageService
 
         try
         {
-            await publish.Publish(
-                new SendNotificationMessage
-                {
-                    MessageId = message.Id
-                },
-                cancellationToken);
+            foreach (var recipient in message.Recipients)
+            {
+                await publish.Publish(
+                    new SendNotificationMessage
+                    {
+                        RecipientId = recipient.Id
+                    },
+                    cancellationToken);
+            }
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Не удалось опубликовать уведомление. MessageId: {MessageId}", message.Id);
+            logger.LogError(
+                exception,
+                "Не удалось опубликовать уведомления");
         }
 
         return Result<CreateMessageResponse>.Success(
