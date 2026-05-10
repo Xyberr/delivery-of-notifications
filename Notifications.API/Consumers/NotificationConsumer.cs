@@ -14,76 +14,47 @@ public class NotificationConsumer(
     public async Task Consume(
         ConsumeContext<SendNotificationMessage> context)
     {
-        var messageId = context.Message.MessageId;
-
-        logger.LogInformation(
-            "Начата обработка сообщения {MessageId}",
-            messageId);
-
         var message = await db.Messages
-            .Include(x => x.Recipients)
+            .Include(message => message.Recipients)
             .FirstOrDefaultAsync(
-                x => x.Id == messageId,
-                context.CancellationToken);
+                message => message.Id == context.Message.MessageId);
 
         if (message == null)
         {
             logger.LogWarning(
-                "Сообщение {MessageId} не найдено",
-                messageId);
+                "Сообщение не найдено. MessageId: {MessageId}",
+                context.Message.MessageId);
 
             return;
         }
 
-        var pendingStatusId = await db.DeliveryStatuses
-            .Where(x => x.Code == DeliveryStatusCode.Pending)
-            .Select(x => x.Id)
-            .FirstAsync(context.CancellationToken);
-
-        var deliveredStatusId = await db.DeliveryStatuses
-            .Where(x => x.Code == DeliveryStatusCode.Delivered)
-            .Select(x => x.Id)
-            .FirstAsync(context.CancellationToken);
-
         foreach (var recipient in message.Recipients)
         {
-            recipient.DeliveryStatusId = pendingStatusId;
-            recipient.UpdatedAt = DateTime.UtcNow;
+            try
+            {
+                logger.LogInformation(
+                    "Отправка сообщения в {Recipient}",
+                    recipient.ContactData);
+
+                recipient.DeliveryStatusId =
+                    (long)DeliveryStatusCode.Delivered;
+            }
+            catch (Exception exception)
+            {
+                recipient.RetryCount++;
+
+                recipient.DeliveryStatusId =
+                    (long)DeliveryStatusCode.Failed;
+
+                logger.LogError(
+                    exception,
+                    "Не удалось отправить уведомление по адресу {Recipient}",
+                    recipient.ContactData);
+
+                throw;
+            }
         }
 
         await db.SaveChangesAsync(context.CancellationToken);
-
-        try
-        {
-            foreach (var recipient in message.Recipients)
-            {
-                logger.LogInformation(
-                    "Отправка сообщения {MessageId} получателю {RecipientId}",
-                    message.Id,
-                    recipient.Id);
-
-                await Task.Delay(
-                    1000,
-                    context.CancellationToken);
-
-                recipient.DeliveryStatusId = deliveredStatusId;
-                recipient.UpdatedAt = DateTime.UtcNow;
-            }
-
-            await db.SaveChangesAsync(context.CancellationToken);
-
-            logger.LogInformation(
-                "Сообщение {MessageId} успешно обработано",
-                messageId);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(
-                ex,
-                "Ошибка при обработке сообщения {MessageId}",
-                messageId);
-
-            throw;
-        }
     }
 }

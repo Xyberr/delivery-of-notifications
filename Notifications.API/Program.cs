@@ -1,53 +1,47 @@
 using MassTransit;
+using Microsoft.Extensions.Options;
 using Notifications.API.Consumers;
+using Notifications.API.Entities;
 using Notifications.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-var rabbitMqSection = builder.Configuration.GetSection("RabbitMq");
+builder.Services
+    .AddOptions<RabbitMqConfig>()
+    .Bind(builder.Configuration.GetSection(RabbitMqConfig.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
-var rabbitMqHost = rabbitMqSection["Host"]
-                   ?? throw new InvalidOperationException("RabbitMq:Host не настроен в конфигурации");
-
-var rabbitMqUsername = rabbitMqSection["Username"]
-                       ?? throw new InvalidOperationException("RabbitMq:Username не настроен в конфигурации");
-
-var rabbitMqPassword = rabbitMqSection["Password"]
-                       ?? throw new InvalidOperationException("RabbitMq:Password не настроен в конфигурации");
-
-var rabbitMqQueue = rabbitMqSection["Queue"]
-                    ?? throw new InvalidOperationException("RabbitMq:Queue не настроен в конфигурации");
-
-builder.Services.AddMassTransit(config =>
+builder.Services.AddMassTransit(configurator =>
 {
-    config.AddConsumer<NotificationConsumer>();
+    configurator.AddConsumer<NotificationConsumer>();
 
-    config.UsingRabbitMq((context, cfg) =>
+    configurator.SetKebabCaseEndpointNameFormatter();
+
+    configurator.UsingRabbitMq((context, cfg) =>
     {
+        var settings = context
+            .GetRequiredService<IOptions<RabbitMqConfig>>()
+            .Value;
+
         cfg.Host(
-            rabbitMqHost,
-            "/",
+            settings.Host,
             host =>
             {
-                host.Username(rabbitMqUsername);
-                host.Password(rabbitMqPassword);
+                host.Username(settings.Username);
+                host.Password(settings.Password);
             });
 
-        cfg.ReceiveEndpoint(
-            rabbitMqQueue,
-            endpoint =>
-            {
-                endpoint.ConfigureConsumer<NotificationConsumer>(context);
+        cfg.UseMessageRetry(retry =>
+        {
+            retry.Interval(
+                3,
+                TimeSpan.FromSeconds(5));
+        });
 
-                endpoint.UseMessageRetry(retry =>
-                {
-                    retry.Interval(
-                        3,
-                        TimeSpan.FromSeconds(5));
-                });
-            });
+        cfg.ConfigureEndpoints(context);
     });
 });
 
