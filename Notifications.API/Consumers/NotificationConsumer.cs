@@ -41,19 +41,14 @@ public class NotificationConsumer(
         catch (Exception exception)
         {
             recipient.RetryCount++;
+            recipient.NextRetry = DateTime.UtcNow.AddMinutes(5);
+            recipient.DeliveryStatusId = (long)DeliveryStatusCode.Failed;
 
-            recipient.NextRetry =
-                DateTime.UtcNow.AddMinutes(5);
+            logger.LogError(exception, "Ошибка отправки уведомления {Recipient}", recipient.ContactData);
 
-            recipient.DeliveryStatusId =
-                (long)DeliveryStatusCode.Failed;
+            await db.SaveChangesAsync(context.CancellationToken);
 
-            logger.LogError(
-                exception,
-                "Ошибка отправки уведомления {Recipient}",
-                recipient.ContactData);
-
-            throw;
+            return;
         }
 
         await db.SaveChangesAsync(context.CancellationToken);

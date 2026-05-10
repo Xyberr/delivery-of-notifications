@@ -1,9 +1,11 @@
 using MassTransit;
 using Microsoft.Extensions.Options;
 using Notifications.API.Consumers;
+using Notifications.API.Contracts.Notifications;
 using Notifications.API.Entities;
 using Notifications.API.Extensions;
-using Notifications.API.Services.BackgroundServices.NotificationRetryBackgroundService;
+using Quartz;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,25 @@ builder.Services
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-builder.Services.AddHostedService<NotificationRetryBackgroundService>();
+builder.Services.AddQuartz(q =>
+{
+    var jobKey = new JobKey("NotificationRetryJob");
+
+    q.AddJob<NotificationRetryJob>(opts =>
+        opts.WithIdentity(jobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("NotificationRetryTrigger")
+        .WithSimpleSchedule(x =>
+            x.WithInterval(TimeSpan.FromSeconds(30))
+                .RepeatForever()));
+});
+
+builder.Services.AddQuartzHostedService(opt =>
+{
+    opt.WaitForJobsToComplete = true;
+});
 
 builder.Services.AddMassTransit(configurator =>
 {

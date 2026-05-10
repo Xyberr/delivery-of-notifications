@@ -69,6 +69,14 @@ public partial class MessageService
 
         await db.SaveChangesAsync(cancellationToken);
 
+        foreach (var recipient in message.Recipients)
+        {
+            recipient.DeliveryStatusId =
+                (long)DeliveryStatusCode.Pending;
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+
         try
         {
             foreach (var recipient in message.Recipients)
@@ -85,7 +93,8 @@ public partial class MessageService
         {
             logger.LogError(
                 exception,
-                "Не удалось опубликовать уведомления");
+                "Не удалось опубликовать уведомления для MessageId {MessageId}",
+                message.Id);
         }
 
         return Result<CreateMessageResponse>.Success(
