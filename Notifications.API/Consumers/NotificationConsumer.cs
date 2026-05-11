@@ -11,6 +11,8 @@ public class NotificationConsumer(
     ILogger<NotificationConsumer> logger)
     : IConsumer<SendNotificationMessage>
 {
+    private const int MaxRetryCount = 5;
+
     public async Task Consume(
         ConsumeContext<SendNotificationMessage> context)
     {
@@ -35,21 +37,36 @@ public class NotificationConsumer(
                 "Отправка сообщения получателю {Recipient}",
                 recipient.ContactData);
 
+            // TODO: отправка
+
             recipient.DeliveryStatusId =
                 (long)DeliveryStatusCode.Delivered;
         }
         catch (Exception exception)
         {
             recipient.RetryCount++;
-            recipient.NextRetry = DateTime.UtcNow.AddMinutes(5);
-            recipient.DeliveryStatusId = (long)DeliveryStatusCode.Failed;
 
-            logger.LogError(exception, "Ошибка отправки уведомления {Recipient}", recipient.ContactData);
+            if (recipient.RetryCount >= MaxRetryCount)
+            {
+                recipient.DeliveryStatusId =
+                    (long)DeliveryStatusCode.Failed;
+            }
+            else
+            {
+                recipient.DeliveryStatusId =
+                    (long)DeliveryStatusCode.RetryScheduled;
 
-            await db.SaveChangesAsync(context.CancellationToken);
+                recipient.NextRetry =
+                    DateTime.UtcNow.AddMinutes(5);
+            }
 
-            return;
+            logger.LogError(
+                exception,
+                "Ошибка отправки уведомления {Recipient}",
+                recipient.ContactData);
         }
+
+        recipient.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(context.CancellationToken);
     }

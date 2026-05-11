@@ -1,6 +1,4 @@
-﻿using MassTransit;
-using Microsoft.EntityFrameworkCore;
-using Notifications.API.Contracts.Notifications;
+﻿using Microsoft.EntityFrameworkCore;
 using Notifications.API.DTO.Requests;
 using Notifications.API.DTO.Responses;
 using Notifications.API.Entities;
@@ -68,34 +66,6 @@ public partial class MessageService
         db.Messages.Add(message);
 
         await db.SaveChangesAsync(cancellationToken);
-
-        foreach (var recipient in message.Recipients)
-        {
-            recipient.DeliveryStatusId =
-                (long)DeliveryStatusCode.Pending;
-        }
-
-        await db.SaveChangesAsync(cancellationToken);
-
-        try
-        {
-            foreach (var recipient in message.Recipients)
-            {
-                await publish.Publish(
-                    new SendNotificationMessage
-                    {
-                        RecipientId = recipient.Id
-                    },
-                    cancellationToken);
-            }
-        }
-        catch (Exception exception)
-        {
-            logger.LogError(
-                exception,
-                "Не удалось опубликовать уведомления для MessageId {MessageId}",
-                message.Id);
-        }
 
         return Result<CreateMessageResponse>.Success(
             new CreateMessageResponse
