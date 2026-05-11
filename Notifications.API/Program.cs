@@ -6,6 +6,7 @@ using Notifications.API.Entities;
 using Notifications.API.Extensions;
 using Notifications.API.Services.DeliveryStatusProvider;
 using Notifications.API.Services.Notifications;
+using Notifications.API.Services.Notifications.BackgroundJobs;
 using Quartz;
 
 

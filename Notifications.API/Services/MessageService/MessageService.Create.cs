@@ -21,10 +21,7 @@ public partial class MessageService
 
         var now = DateTime.UtcNow;
 
-        var queuedStatusId = await deliveryStatusProvider
-            .GetStatusIdAsync(
-                DeliveryStatusCode.Queued,
-                cancellationToken);
+        var queuedStatusId = (long)DeliveryStatusCode.Queued;
 
         var contactTypeIds = request.Recipients
             .Select(recipient => recipient.ContactTypeId)
@@ -52,21 +49,18 @@ public partial class MessageService
         {
             Subject = request.Subject,
             MessageBody = request.MessageBody,
-            StorageTimeAfterSendingInHours =
-                request.StorageTimeAfterSendingInHours,
+            StorageTimeAfterSendingInHours = request.StorageTimeAfterSendingInHours,
             CreatedAt = now,
             UpdatedAt = now,
-            Recipients = request.Recipients
-                .Select(recipient => new Recipient
-                {
-                    ContactTypeId = recipient.ContactTypeId,
-                    ContactData = recipient.ContactData,
-                    DeliveryStatusId = queuedStatusId,
-                    RetryCount = 0,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                })
-                .ToList()
+            Recipients = request.Recipients.Select(r => new Recipient
+            {
+                ContactTypeId = r.ContactTypeId,
+                ContactData = r.ContactData,
+                DeliveryStatusId = queuedStatusId,
+                RetryCount = 0,
+                CreatedAt = now,
+                UpdatedAt = now
+            }).ToList()
         };
 
         db.Messages.Add(message);
