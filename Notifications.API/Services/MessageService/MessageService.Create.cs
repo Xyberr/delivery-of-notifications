@@ -3,42 +3,47 @@ using Notifications.API.DTO.Requests;
 using Notifications.API.DTO.Responses;
 using Notifications.API.Entities;
 using Notifications.API.Entities.Enums;
+using Notifications.API.Services.DeliveryStatusProvider;
 
 namespace Notifications.API.Service.MessageService;
 
 public partial class MessageService
 {
     public async Task<Result<CreateMessageResponse>> CreateAsync(
-    CreateMessageRequest request,
-    CancellationToken cancellationToken)
+        CreateMessageRequest request,
+        CancellationToken cancellationToken)
     {
         if (request.Recipients is not { Count: >= 1 })
-            return Result<CreateMessageResponse>.Failure("Список получателей не может быть пустым");
+        {
+            return Result<CreateMessageResponse>
+                .Failure("Список получателей не может быть пустым");
+        }
 
         var now = DateTime.UtcNow;
 
-        var pendingStatusId = await db.DeliveryStatuses
-            .Where(status => status.Code == DeliveryStatusCode.Pending)
-            .Select(status => status.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (pendingStatusId == default)
-            return Result<CreateMessageResponse>.Failure("Статус Pending не найден");
+        var queuedStatusId = (long)DeliveryStatusCode.Queued;
 
         var contactTypeIds = request.Recipients
-            .Select(r => r.ContactTypeId)
+            .Select(recipient => recipient.ContactTypeId)
             .Distinct()
             .ToList();
 
         var existingIds = await db.ContactTypes
-            .Where(ct => contactTypeIds.Contains(ct.Id))
-            .Select(ct => ct.Id)
+            .Where(contactType =>
+                contactTypeIds.Contains(contactType.Id))
+            .Select(contactType => contactType.Id)
             .ToListAsync(cancellationToken);
 
-        var invalidIds = contactTypeIds.Except(existingIds).ToList();
+        var invalidIds = contactTypeIds
+            .Except(existingIds)
+            .ToList();
 
-        if (invalidIds.Any())
-            return Result<CreateMessageResponse>.Failure($"Неподдерживаемые ContactTypeId: {string.Join(", ", invalidIds)}");
+        if (invalidIds.Count != 0)
+        {
+            return Result<CreateMessageResponse>
+                .Failure(
+                    $"Неподдерживаемые ContactTypeId: {string.Join(", ", invalidIds)}");
+        }
 
         var message = new Message
         {
@@ -47,26 +52,26 @@ public partial class MessageService
             StorageTimeAfterSendingInHours = request.StorageTimeAfterSendingInHours,
             CreatedAt = now,
             UpdatedAt = now,
-            Recipients = request.Recipients
-                .Select(recipient => new Recipient
-                {
-                    ContactTypeId = recipient.ContactTypeId,
-                    ContactData = recipient.ContactData,
-                    DeliveryStatusId = pendingStatusId,
-                    RetryCount = 0,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                })
-                .ToList()
+            Recipients = request.Recipients.Select(r => new Recipient
+            {
+                ContactTypeId = r.ContactTypeId,
+                ContactData = r.ContactData,
+                DeliveryStatusId = queuedStatusId,
+                RetryCount = 0,
+                CreatedAt = now,
+                UpdatedAt = now
+            }).ToList()
         };
 
         db.Messages.Add(message);
+
         await db.SaveChangesAsync(cancellationToken);
 
-        return Result<CreateMessageResponse>.Success(new CreateMessageResponse
-        {
-            MessageId = message.Id,
-            RecipientsCount = message.Recipients.Count
-        });
-    }   
+        return Result<CreateMessageResponse>.Success(
+            new CreateMessageResponse
+            {
+                MessageId = message.Id,
+                RecipientsCount = message.Recipients.Count
+            });
+    }
 }

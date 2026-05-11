@@ -12,8 +12,8 @@ public enum DeliveryStatusCode
 
     [Display(Name = "Отправлено", Description = "Сообщение успешно доставлено")]
     Delivered = 3,
-
-    [Display(Name = "Ошибка", Description = "Ошибка при отправке")]
+    
+    [Display(Name = "Ошибка", Description = "Исчерпан лимит попыток")]
     Failed = 4,
     
     [Display(Name = "Не поддерживается", Description = "Не поддерживается")]
