@@ -4,6 +4,8 @@ using Notifications.API.Consumers;
 using Notifications.API.Contracts.Notifications;
 using Notifications.API.Entities;
 using Notifications.API.Extensions;
+using Notifications.API.Services.DeliveryStatusProvider;
+using Notifications.API.Services.Notifications;
 using Quartz;
 
 
@@ -16,6 +18,12 @@ builder.Services
     .Bind(builder.Configuration.GetSection(RabbitMqConfig.SectionName))
     .ValidateDataAnnotations()
     .ValidateOnStart();
+
+builder.Services.AddScoped<INotificationSender, FakeNotificationSender>();
+
+builder.Services.AddScoped<
+    IDeliveryStatusProvider,
+    DeliveryStatusProvider>();
 
 builder.Services.AddQuartz(q =>
 {

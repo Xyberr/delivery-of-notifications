@@ -3,6 +3,7 @@ using Notifications.API.DTO.Requests;
 using Notifications.API.DTO.Responses;
 using Notifications.API.Entities;
 using Notifications.API.Entities.Enums;
+using Notifications.API.Services.DeliveryStatusProvider;
 
 namespace Notifications.API.Service.MessageService;
 
@@ -20,13 +21,19 @@ public partial class MessageService
 
         var now = DateTime.UtcNow;
 
+        var queuedStatusId = await deliveryStatusProvider
+            .GetStatusIdAsync(
+                DeliveryStatusCode.Queued,
+                cancellationToken);
+
         var contactTypeIds = request.Recipients
             .Select(recipient => recipient.ContactTypeId)
             .Distinct()
             .ToList();
 
         var existingIds = await db.ContactTypes
-            .Where(contactType => contactTypeIds.Contains(contactType.Id))
+            .Where(contactType =>
+                contactTypeIds.Contains(contactType.Id))
             .Select(contactType => contactType.Id)
             .ToListAsync(cancellationToken);
 
@@ -54,8 +61,7 @@ public partial class MessageService
                 {
                     ContactTypeId = recipient.ContactTypeId,
                     ContactData = recipient.ContactData,
-                    DeliveryStatusId =
-                        (long)DeliveryStatusCode.Queued,
+                    DeliveryStatusId = queuedStatusId,
                     RetryCount = 0,
                     CreatedAt = now,
                     UpdatedAt = now

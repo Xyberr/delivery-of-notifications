@@ -2,5 +2,5 @@
 
 public class SendNotificationMessage
 {
-    public long RecipientId { get; set; }
+    public ICollection<long> RecipientIds { get; set; } = [];
 }
